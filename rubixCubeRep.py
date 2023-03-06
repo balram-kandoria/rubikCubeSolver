@@ -88,6 +88,24 @@ class RubikCube:
             'S12': {'Location': (1, 2, 2), 'Yellow': (0, 0, -1), 'Blue': (0, 1, 0)}
         }
 
+        self.SideDict = {
+            # Bottom Row
+            'S1': {'Location': (1, 0, 0), 'White': (0, 0, 1), 'Green': (0, -1, 0)},
+            'S2': {'Location': (2, 1, 0), 'Red': (1, 0, 0), 'Green': (0, -1, 0)},
+            'S3': {'Location': (1, 2, 0), 'Yellow': (0, 0, -1), 'Green': (0, -1, 0)},
+            'S4': {'Location': (0, 1, 0), 'Orange': (-1, 0, 0), 'Green': (0, -1, 0)},
+            # Middle Row
+            'S5': {'Location': (0, 0, 1), 'White': (0, 0, 1), 'Orange': (-1, 0, 0)},
+            'S6': {'Location': (2, 0, 1), 'White': (0, 0, 1), 'Red': (1, 0, 0)},
+            'S7': {'Location': (2, 2, 1), 'Yellow': (0, 0, -1), 'Red': (1, 0, 0)},
+            'S8': {'Location': (0, 2, 1), 'Yellow': (0, 0, -1), 'Orange': (-1, 0, 0)},
+            # Top Row
+            'S9': {'Location': (0, 1, 2), 'Orange': (-1, 0, 0), 'Blue': (0, 1, 0)},
+            'S10': {'Location': (1, 0, 2), 'White': (0, 0, 1), 'Blue': (0, 1, 0)},
+            'S11': {'Location': (2, 1, 2), 'Red': (1, 0, 0), 'Blue': (0, 1, 0)},
+            'S12': {'Location': (1, 2, 2), 'Yellow': (0, 0, -1), 'Blue': (0, 1, 0)}
+        }
+
         # Group the Sides by Positions (Column and Row)
         self.bottomRowS = ['S1', 'S2', 'S3', 'S4']
         self.topRowS = ['S9', 'S10', 'S11', 'S12']
@@ -1919,20 +1937,29 @@ SP = rub.SidePeices
 CP, SP = rub.randomizer(CP, SP, 500)
 # Solve White Cross
 CP, SP = rub.SolveWhiteCross(CP, SP)
-
-
+# Solve White Corners
 CP, SP = rub.SolveWhiteCorners(CP, SP)
 
-rub.PlotRubik(CP, SP)
-# matched = False
-# while not matched:
-#     matched = True
-#     for j in range(len(colorKeys)):
-#         if (rub.CornerDict[cpKeys[i]][colorKeys[j]] != CP[cpKeys[i]][colorKeys[j]]):
-#             matched = False
 
 # Solve Second Layer Sides
-# Solve Yellow Cross
-# Order Yellow Cross
-# Solve Yellow Corners
-# Order Yellow Corners
+sideKeys = ['S2', 'S4', 'S9', 'S11']
+backKeys = ['S3', 'S7', 'S8', 'S12']
+for i in range(len(sideKeys)):
+    # print(SP[sideKeys[i]])
+    sideKeysList = list(SP[sideKeys[i]])
+    # Check if side peice is not in the correct position
+    if (rub.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[i]][sideKeysList[1]]) or (rub.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[i]][sideKeysList[2]]):
+        # Check the back face for the correct peice
+        print(rub.SideDict[sideKeys[i]].keys())
+        sideDictKeys = list(rub.SideDict[sideKeys[i]].keys())
+        for j in range(len(backKeys)):
+            backpeiceList = list(SP[backKeys[j]])
+            print(backpeiceList)
+            if (sideDictKeys[1] == backpeiceList[1]) and (sideDictKeys[2] == backpeiceList[2]):
+                print('True')
+            # Solve Yellow Cross
+            # Order Yellow Cross
+            # Solve Yellow Corners
+            # Order Yellow Corners
+
+rub.PlotRubik(CP, SP)
