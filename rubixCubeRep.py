@@ -1347,7 +1347,7 @@ class RubikCube:
             try:
                 if (SP['S1']['White'][2] == 1) and (SP['S5']['White'][2] == 1) and (SP['S6']['White'][2] == 1) and (SP['S10']['White'][2] == 1):
                     if (SP['S1']['Green'][1] == -1) and (SP['S5']['Orange'][0] == -1) and (SP['S6']['Red'][0] == 1) and (SP['S10']['Blue'][1] == 1):
-                        print('ALL MATCHING')
+                        # print('ALL MATCHING')
                         ColorFlag = False
                         solve += 1
             except:
@@ -1507,6 +1507,183 @@ class RubikCube:
                 # print(
                 # f'Matched Left Column: {spSpecificKeys[otherColorIndex]}')
 
+        return CP, SP
+
+    def RightHandRule(self, CP, SP, Corner):
+        if Corner == 'C6':
+            rightRuleC = self.rightColumnC
+            rightRuleS = self.rightColumnS
+
+            CP, SP = self.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CW')
+            CP, SP = self.rotateFace(
+                CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+            CP, SP = self.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CCW')
+            CP, SP = self.rotateFace(
+                CP, self.backFaceC, SP, self.backFaceS, 'CW')
+
+        elif Corner == 'C1':
+            rightRuleC = self.leftColumnC
+            rightRuleS = self.leftColumnS
+
+            CP, SP = self.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CCW')
+            CP, SP = self.rotateFace(
+                CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+            CP, SP = self.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CW')
+            CP, SP = self.rotateFace(
+                CP, self.backFaceC, SP, self.backFaceS, 'CW')
+
+        elif Corner == 'C2':
+            rightRuleC = self.bottomRowC
+            rightRuleS = self.bottomRowS
+
+            CP, SP = self.rotateRow(CP, rightRuleC, SP, rightRuleS, 'CCW')
+            CP, SP = self.rotateFace(
+                CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+            CP, SP = self.rotateRow(CP, rightRuleC, SP, rightRuleS, 'CW')
+            CP, SP = self.rotateFace(
+                CP, self.backFaceC, SP, self.backFaceS, 'CW')
+
+        elif Corner == 'C5':
+            rightRuleC = self.topRowC
+            rightRuleS = self.topRowS
+
+            CP, SP = self.rotateRow(CP, rightRuleC, SP, rightRuleS, 'CW')
+            CP, SP = self.rotateFace(
+                CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+            CP, SP = self.rotateRow(CP, rightRuleC, SP, rightRuleS, 'CCW')
+            CP, SP = self.rotateFace(
+                CP, self.backFaceC, SP, self.backFaceS, 'CW')
+
+        return CP, SP
+
+    def SolveWhiteCorners(self, CP, SP):
+        # Solve White Corners
+        cpKeys = ['C2', 'C1', 'C5', 'C6']
+        otherCPKeys = ['C3', 'C4', 'C8', 'C7']
+
+        CornerMatch = False
+        while not CornerMatch:
+            for i in range(len(cpKeys)):
+                orientationCount = 0
+                colorKeys = list(CP[cpKeys[i]].keys())
+                # print(f"Current Corner is {cpKeys[i]}")
+                orgDictColors = list(self.CornerDict[cpKeys[i]].keys())
+
+                # print(f"Corner Colors should be: {orgDictColors}")
+                # print(f"Current Colors are: {colorKeys}")
+
+                # If Corner exists with all the correct color but not necessarily in the right orientation
+                if (colorKeys[1] in orgDictColors) and (colorKeys[2] in orgDictColors) and (colorKeys[3] in orgDictColors):
+                    # print('Correct Position but Incorrect Orientation')
+                    # Check Orientation and Turn Corner
+                    correctOrientation = 0
+                    while correctOrientation != 4:
+
+                        correctOrientation = 0
+                        for j in range(len(colorKeys)):
+                            if (self.CornerDict[cpKeys[i]][colorKeys[j]] == CP[cpKeys[i]][colorKeys[j]]):
+                                correctOrientation += 1
+                                orientationCount += 1
+
+                        if correctOrientation != 4:
+                            CP, SP = self.RightHandRule(CP, SP, cpKeys[i])
+                            CP, SP = self.RightHandRule(CP, SP, cpKeys[i])
+                else:
+                    # print('Peice stuck')
+                    if cpKeys[i] == 'C1':
+                        CP, SP = self.rotateColumn(
+                            CP, self.leftColumnC, SP, self.leftColumnS, 'CCW')
+                        CP, SP = self.rotateFace(
+                            CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                        CP, SP = self.rotateColumn(
+                            CP, self.leftColumnC, SP, self.leftColumnS, 'CW')
+                    elif cpKeys[i] == 'C2':
+                        CP, SP = self.rotateColumn(
+                            CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
+                        CP, SP = self.rotateFace(
+                            CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                        CP, SP = self.rotateColumn(
+                            CP, self.rightColumnC, SP, self.rightColumnS, 'CW')
+                    elif cpKeys[i] == 'C5':
+                        CP, SP = self.rotateColumn(
+                            CP, self.leftColumnC, SP, self.leftColumnS, 'CW')
+                        CP, SP = self.rotateFace(
+                            CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                        CP, SP = self.rotateColumn(
+                            CP, self.leftColumnC, SP, self.leftColumnS, 'CCW')
+                    elif cpKeys[i] == 'C6':
+                        CP, SP = self.rotateColumn(
+                            CP, self.rightColumnC, SP, self.rightColumnS, 'CW')
+                        CP, SP = self.rotateFace(
+                            CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                        CP, SP = self.rotateColumn(
+                            CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
+
+                for j in range(len(otherCPKeys)):
+                    backFaceColors = list(CP[otherCPKeys[j]].keys())
+                    SpecifiedCornerColor = list(
+                        self.CornerDict[cpKeys[i]].keys())
+                    if (SpecifiedCornerColor[1] in backFaceColors) and (SpecifiedCornerColor[2] in backFaceColors) and (SpecifiedCornerColor[3] in backFaceColors):
+                        # print('Corner peice on the back face')
+                        # rub.PlotRubik(CP, SP)
+                        # print(True)
+                        # print(otherCPKeys[j])
+                        # print(backFaceColors)
+                        # print()
+                        if otherCPKeys[j] != otherCPKeys[i]:
+                            # print('Rot')
+
+                            match = False
+                            tempLocation = j
+                            # print('1')
+                            while not match:
+                                CP, SP = self.rotateFace(
+                                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+
+                                # Adjust other Color location to account for rotation
+                                tempLocation += 1
+                                if tempLocation >= len(otherCPKeys):
+                                    tempLocation = 0
+
+                                # Check if the Corner with the target color is in the right position
+                                if otherCPKeys[tempLocation] == otherCPKeys[i]:
+                                    match = True
+                                    CP, SP = self.RightHandRule(
+                                        CP, SP, cpKeys[i])
+                        # print('2')
+                        # colorKeys = list(CP[cpKeys[i]].keys())
+                        # if (colorKeys[1] in orgDictColors) and (colorKeys[2] in orgDictColors) and (colorKeys[3] in orgDictColors):
+                        #     # Check Orientation and Turn Corner
+                        #     correctOrientation = 0
+                        #     while correctOrientation != 4:
+
+                        #         correctOrientation = 0
+                        #         for k in range(len(colorKeys)):
+                        #             try:
+                        #                 if (rub.CornerDict[cpKeys[i]][colorKeys[k]] == CP[cpKeys[i]][colorKeys[k]]):
+                        #                     correctOrientation += 1
+                        #                     orientationCount += 1
+                        #             except:
+                        #                 break
+
+                        #         if correctOrientation != 4:
+                        #             CP, SP = RightHandRule(CP, SP, cpKeys[i])
+                        #             CP, SP = RightHandRule(CP, SP, cpKeys[i])
+                        # print('3')
+
+                try:
+                    checkCount = 0
+                    for m in range(len(cpKeys)):
+                        colorKeys = list(CP[cpKeys[m]].keys())
+                        orgDictColors = list(rub.CornerDict[cpKeys[m]].keys())
+                        if (colorKeys[1] in orgDictColors) and (colorKeys[2] in orgDictColors) and (colorKeys[3] in orgDictColors):
+                            if CP[cpKeys[m]]['White'][2] == 1:
+                                checkCount += 1
+                    if checkCount == 4:
+                        print('All Matching')
+                        CornerMatch = True
+                except:
+                    break
         return CP, SP
 
 
@@ -1728,48 +1905,9 @@ def wcCurrOppSide(CP, SP, sidePeiceLocation, currentCenter, i):
     return CP, SP
 
 
-def RightHandRule(CP, SP, Corner):
-    if Corner == 'C6':
-        rightRuleC = rub.rightColumnC
-        rightRuleS = rub.rightColumnS
-
-        CP, SP = rub.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CW')
-        CP, SP = rub.rotateFace(CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-        CP, SP = rub.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CCW')
-        CP, SP = rub.rotateFace(CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-
-    elif Corner == 'C1':
-        rightRuleC = rub.leftColumnC
-        rightRuleS = rub.leftColumnS
-
-        CP, SP = rub.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CCW')
-        CP, SP = rub.rotateFace(CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-        CP, SP = rub.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CW')
-        CP, SP = rub.rotateFace(CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-
-    elif Corner == 'C2':
-        rightRuleC = rub.bottomRowC
-        rightRuleS = rub.bottomRowS
-
-        CP, SP = rub.rotateRow(CP, rightRuleC, SP, rightRuleS, 'CCW')
-        CP, SP = rub.rotateFace(CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-        CP, SP = rub.rotateRow(CP, rightRuleC, SP, rightRuleS, 'CW')
-        CP, SP = rub.rotateFace(CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-
-    elif Corner == 'C5':
-        rightRuleC = rub.topRowC
-        rightRuleS = rub.topRowS
-
-        CP, SP = rub.rotateRow(CP, rightRuleC, SP, rightRuleS, 'CW')
-        CP, SP = rub.rotateFace(CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-        CP, SP = rub.rotateRow(CP, rightRuleC, SP, rightRuleS, 'CCW')
-        CP, SP = rub.rotateFace(CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-
-    return CP, SP
-
-
 Countc = 0
 Counts = 0
+matches = 0
 
 # Initialize
 rub = RubikCube()
@@ -1781,96 +1919,20 @@ SP = rub.SidePeices
 CP, SP = rub.randomizer(CP, SP, 500)
 # Solve White Cross
 CP, SP = rub.SolveWhiteCross(CP, SP)
-# Solve White Corners
-cpKeys = ['C2', 'C1', 'C5', 'C6']
-otherCPKeys = ['C3', 'C4', 'C8', 'C7']
-
-CornerMatch = False
 
 
-for i in range(len(cpKeys)):
-    orientationCount = 0
-    colorKeys = list(CP[cpKeys[i]].keys())
-    print(f"Current Corner is {cpKeys[i]}")
-    orgDictColors = list(rub.CornerDict[cpKeys[i]].keys())
+CP, SP = rub.SolveWhiteCorners(CP, SP)
 
-    print(f"Corner Colors should be: {orgDictColors}")
-    print(f"Current Colors are: {colorKeys}")
-
-    # If Corner exists with all the correct color but not necessarily in the right orientation
-    if (colorKeys[1] in orgDictColors) and (colorKeys[2] in orgDictColors) and (colorKeys[3] in orgDictColors):
-
-        # Check Orientation and Turn Corner
-        correctOrientation = 0
-        while correctOrientation != 4:
-
-            correctOrientation = 0
-            for j in range(len(colorKeys)):
-                if (rub.CornerDict[cpKeys[i]][colorKeys[j]] == CP[cpKeys[i]][colorKeys[j]]):
-                    correctOrientation += 1
-                    orientationCount += 1
-
-            if correctOrientation != 4:
-                CP, SP = RightHandRule(CP, SP, cpKeys[i])
-                CP, SP = RightHandRule(CP, SP, cpKeys[i])
-
-    for j in range(len(otherCPKeys)):
-        backFaceColors = list(CP[otherCPKeys[j]].keys())
-        SpecifiedCornerColor = list(rub.CornerDict[cpKeys[i]].keys())
-        if (SpecifiedCornerColor[1] in list(backFaceColors)) and (SpecifiedCornerColor[2] in list(backFaceColors)) and (SpecifiedCornerColor[3] in list(backFaceColors)):
-            print(True)
-            print(otherCPKeys[j])
-            print(backFaceColors)
-            print()
-            if otherCPKeys[j] != otherCPKeys[i]:
-                print('Rot')
-
-                match = False
-                tempLocation = j
-                while not match:
-                    CP, SP = rub.rotateFace(
-                        CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-
-                    # Adjust other Color location to account for rotation
-                    tempLocation += 1
-                    if tempLocation >= len(otherCPKeys):
-                        tempLocation = 0
-
-                    # Check if the Corner with the target color is in the right position
-                    if otherCPKeys[tempLocation] == otherCPKeys[i]:
-                        match = True
-                        CP, SP = RightHandRule(CP, SP, cpKeys[i])
-
-            # Check Orientation and Turn Corner
-            correctOrientation = 0
-            while correctOrientation != 4:
-
-                correctOrientation = 0
-                colorKeys = list(CP[cpKeys[i]].keys())
-                for k in range(len(colorKeys)):
-                    try:
-                        if (rub.CornerDict[cpKeys[i]][colorKeys[k]] == CP[cpKeys[i]][colorKeys[k]]):
-                            correctOrientation += 1
-                            orientationCount += 1
-                    except:
-                        break
-
-                if correctOrientation != 4:
-                    CP, SP = RightHandRule(CP, SP, cpKeys[i])
-                    CP, SP = RightHandRule(CP, SP, cpKeys[i])
-
-    # matched = False
-    # while not matched:
-    #     matched = True
-    #     for j in range(len(colorKeys)):
-    #         if (rub.CornerDict[cpKeys[i]][colorKeys[j]] != CP[cpKeys[i]][colorKeys[j]]):
-    #             matched = False
+rub.PlotRubik(CP, SP)
+# matched = False
+# while not matched:
+#     matched = True
+#     for j in range(len(colorKeys)):
+#         if (rub.CornerDict[cpKeys[i]][colorKeys[j]] != CP[cpKeys[i]][colorKeys[j]]):
+#             matched = False
 
 # Solve Second Layer Sides
 # Solve Yellow Cross
 # Order Yellow Cross
 # Solve Yellow Corners
 # Order Yellow Corners
-
-
-rub.PlotRubik(CP, SP)
