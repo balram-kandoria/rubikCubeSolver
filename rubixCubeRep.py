@@ -2000,6 +2000,102 @@ class RubikCube:
 
         return CP, SP
 
+    def SolveYellowCross(self, CP, SP):
+        # Look at S9-S12 for Yellow in the (0,0,-1) direction
+        sides = ['S3', 'S7', 'S12', 'S8']
+
+        YellowCross = False
+        while not YellowCross:
+            noYcount = 0
+            noYellow = False
+            LShape1 = False
+            LShape2 = False
+            LShape3 = False
+            LineVert = False
+            for i in range(len(sides)):
+                # If No Yellow
+                oneSideList = list(SP[sides[i]].keys())
+                if 'Yellow' in oneSideList:
+                    if SP[sides[i]]['Yellow'] == (0, 0, -1):
+                        noYcount += 1
+
+                        forwardAdjacent = i + 1
+
+                        # Adjust for end of list and indexing errors
+                        if forwardAdjacent > 3:
+                            forwardAdjacent = 0
+
+                        forwardList = list(SP[sides[forwardAdjacent]].keys())
+                        # Case 2: L Shape
+                        if 'Yellow' in forwardList:
+                            if SP[sides[forwardAdjacent]]['Yellow'] == (0, 0, -1):
+                                # print('L spotted')
+                                forwardDirection = SP[sides[forwardAdjacent]
+                                                      ][forwardList[2]]
+                                currentDirection = SP[sides[i]][oneSideList[2]]
+
+                                frontface, backface, toprow, bottomrow, rightcolumn, leftcolumn = self.rowColumnFaceS(
+                                    sides[i])
+                                frontfacef, backfacef, toprowf, bottomrowf, rightcolumnf, leftcolumnf = self.rowColumnFaceS(
+                                    sides[forwardAdjacent])
+
+                                #   Place on the Blue-Red Side
+                                if (bottomrow and leftcolumnf) or (bottomrowf and leftcolumn):
+                                    LShape2 = True
+                                elif ((bottomrow and rightcolumnf) or (bottomrowf and rightcolumn)):
+                                    LShape1 = True
+                                elif ((toprow and leftcolumnf) or (toprowf and leftcolumn)):
+                                    LShape3 = True
+
+                        Line = i + 2
+
+                        # Adjust for end of list and indexing errors
+                        if Line > 3:
+                            Line = Line - 4
+
+                        LineList = list(SP[sides[Line]].keys())
+                        # Case 3: Line Shape
+                        if 'Yellow' in LineList:
+                            if SP[sides[Line]]['Yellow'] == (0, 0, -1):
+
+                                #   Ensure Line is Going from Red-Orange
+                                if not (sides[i] == 'S7' or sides[i] == 'S8'):
+                                    LineVert = True
+                                    # print('Rotate Line')
+
+            if noYcount == 4:
+                YellowCross = True
+                print('Yellow Cross Matched')
+                break
+
+            if noYcount < 4:
+                if noYcount == 0:
+                    noYellow = True
+
+                rotate = 0
+                if LineVert or LShape1:
+                    rotate = 1
+                elif LShape2:
+                    rotate = 2
+                elif LShape3:
+                    rotate = 3
+
+                for run in range(rotate):
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+                #   Turn Green Face CCW
+                #   Right Hand Rule
+                #   Turn Green Face CW
+                CP, SP = self.rotateRow(
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CCW')
+
+                CP, SP = self.RightHandRule(CP, SP, 'C1')
+
+                CP, SP = self.rotateRow(
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CW')
+        return CP, SP
+
 
 Countc = 0
 Counts = 0
@@ -2015,13 +2111,13 @@ fail = 0
 
 # Next Steps
 CP, SP = rub.randomizer(CP, SP, 500)
-rub.PlotRubik(CP, SP)
 # Solve White Cross
 CP, SP = rub.SolveWhiteCross(CP, SP)
-rub.PlotRubik(CP, SP)
 # Solve White Corners
 CP, SP = rub.SolveWhiteCorners(CP, SP)
-rub.PlotRubik(CP, SP)
 # Solve Second Layer
 CP, SP = rub.SolveSecondLayer(CP, SP)
+# Solve Yellow Cross
+CP, SP = rub.SolveYellowCross(CP, SP)
+
 rub.PlotRubik(CP, SP)
