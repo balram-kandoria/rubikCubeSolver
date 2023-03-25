@@ -2131,162 +2131,156 @@ CP = rub.CornerPeices
 SP = rub.SidePeices
 
 fail = 0
-for run in range(1000):
-    # Next Steps
-    CP, SP = rub.randomizer(CP, SP, 500)
-    # Solve White Cross
-    CP, SP = rub.SolveWhiteCross(CP, SP)
-    # Solve White Corners
-    CP, SP = rub.SolveWhiteCorners(CP, SP)
 
-    # Solve Second Layer Sides
-    sideKeys = ['S2', 'S4', 'S9', 'S11']
-    backKeys = ['S3', 'S7', 'S12', 'S8']
-    SecondLayerSolved = False
-    # rub.PlotRubik(CP, SP)
+# Next Steps
+CP, SP = rub.randomizer(CP, SP, 500)
+# Solve White Cross
+CP, SP = rub.SolveWhiteCross(CP, SP)
+# Solve White Corners
+CP, SP = rub.SolveWhiteCorners(CP, SP)
 
-    attempt = 0
+# Solve Second Layer Sides
+sideKeys = ['S2', 'S4', 'S9', 'S11']
+backKeys = ['S3', 'S7', 'S12', 'S8']
+SecondLayerSolved = False
+# rub.PlotRubik(CP, SP)
 
-    while not SecondLayerSolved:
-        attempt += 1
-        for i in range(len(sideKeys)):
+attempt = 0
 
-            # print(SP[sideKeys[i]])
-            sideKeysList = list(SP[sideKeys[i]])
-            # Check if side peice is not in the correct position
-            if (rub.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[i]][sideKeysList[1]]) or (rub.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[i]][sideKeysList[2]]):
-                # Check the back face for the correct peice
-                # print(rub.SideDict[sideKeys[i]].keys())
+while not SecondLayerSolved:
+    attempt += 1
+    for i in range(len(sideKeys)):
 
-                sideDictKeys = list(rub.SideDict[sideKeys[i]].keys())
-                for j in range(len(backKeys)):
-                    matched = False
-                    applicableBackPeice = False
-                    backpeiceList = list(SP[backKeys[j]])
-                    if (sideDictKeys[1] == backpeiceList[1]) and (sideDictKeys[2] == backpeiceList[2]):
-                        applicableBackPeice = True
-                        # print(backpeiceList)
-                        # print('True')
-                        # Find the color adjacent to the back face
-                        adjacentPeice = 0
-                        for k in range(len(backpeiceList)):
-                            if backpeiceList[k] != 'Location':
-                                if SP[backKeys[j]][backpeiceList[k]][2] != -1:
-                                    # print(SP[backKeys[j]][backpeiceList[k]])
-                                    # print(backpeiceList[k])
-                                    adjacentPeice = k
-                                    if k == 1:
-                                        backpeice = 2
-                                    else:
-                                        backpeice = 1
+        # print(SP[sideKeys[i]])
+        sideKeysList = list(SP[sideKeys[i]])
+        # Check if side peice is not in the correct position
+        if (rub.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[i]][sideKeysList[1]]) or (rub.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[i]][sideKeysList[2]]):
+            # Check the back face for the correct peice
+            # print(rub.SideDict[sideKeys[i]].keys())
 
-                        # print(backpeiceList[adjacentPeice])
-                        # if adjacentPeice != 0:
-                        # print(SP[backKeys[j]][backpeiceList[adjacentPeice]])
-                        # print(backpeiceList[adjacentPeice])
-                        # print(rub.Rubik[backpeiceList[adjacentPeice]]['Direction'])
+            sideDictKeys = list(rub.SideDict[sideKeys[i]].keys())
+            for j in range(len(backKeys)):
+                matched = False
+                applicableBackPeice = False
+                backpeiceList = list(SP[backKeys[j]])
+                if (sideDictKeys[1] == backpeiceList[1]) and (sideDictKeys[2] == backpeiceList[2]):
+                    applicableBackPeice = True
+                    # print(backpeiceList)
+                    # print('True')
+                    # Find the color adjacent to the back face
+                    adjacentPeice = 0
+                    for k in range(len(backpeiceList)):
+                        if backpeiceList[k] != 'Location':
+                            if SP[backKeys[j]][backpeiceList[k]][2] != -1:
+                                # print(SP[backKeys[j]][backpeiceList[k]])
+                                # print(backpeiceList[k])
+                                adjacentPeice = k
+                                if k == 1:
+                                    backpeice = 2
+                                else:
+                                    backpeice = 1
 
-                        if rub.Rubik[backpeiceList[adjacentPeice]]['Direction'] != SP[backKeys[j]][backpeiceList[adjacentPeice]]:
-                            # print('1')
-                            tempLoc = j
-                            while not matched:
+                    # print(backpeiceList[adjacentPeice])
+                    # if adjacentPeice != 0:
+                    # print(SP[backKeys[j]][backpeiceList[adjacentPeice]])
+                    # print(backpeiceList[adjacentPeice])
+                    # print(rub.Rubik[backpeiceList[adjacentPeice]]['Direction'])
 
-                                # print(SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]])
-                                # print(SP[backKeys[tempLoc]])
-                                # print(backKeys[tempLoc])
-                                # print(tempLoc)
-                                # Rotate Backface
-                                CP, SP = rub.rotateFace(
-                                    CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
+                    if rub.Rubik[backpeiceList[adjacentPeice]]['Direction'] != SP[backKeys[j]][backpeiceList[adjacentPeice]]:
+                        # print('1')
+                        tempLoc = j
+                        while not matched:
 
-                                # Adjust References
-                                tempLoc -= 1
-                                if tempLoc == -1:
-                                    tempLoc = len(backKeys)-1
+                            # print(SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]])
+                            # print(SP[backKeys[tempLoc]])
+                            # print(backKeys[tempLoc])
+                            # print(tempLoc)
+                            # Rotate Backface
+                            CP, SP = rub.rotateFace(
+                                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
 
-                                # print()
-                                # print(SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]])
-                                # print(SP[backKeys[tempLoc]])
-                                # print(backKeys[tempLoc])
-                                # print(tempLoc)
+                            # Adjust References
+                            tempLoc -= 1
+                            if tempLoc == -1:
+                                tempLoc = len(backKeys)-1
 
-                                # backpeiceList = list(SP[backKeys[tempLoc]])
-                                if SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]] == rub.Rubik[backpeiceList[adjacentPeice]]['Direction']:
-                                    # print('Matched')
-                                    matched = True
-                                    # print(
-                                    #     rub.Rubik[backpeiceList[backpeice]]['Direction'])
+                            # print()
+                            # print(SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]])
+                            # print(SP[backKeys[tempLoc]])
+                            # print(backKeys[tempLoc])
+                            # print(tempLoc)
 
-                                    destinationFaceX = -1 * \
-                                        rub.Rubik[backpeiceList[backpeice]
-                                                  ]['Direction'][0]
-                                    destinationFaceY = -1 * \
-                                        rub.Rubik[backpeiceList[backpeice]
-                                                  ]['Direction'][1]
-                                    destinationFaceZ = -1 * \
-                                        rub.Rubik[backpeiceList[backpeice]
-                                                  ]['Direction'][2]
+                            # backpeiceList = list(SP[backKeys[tempLoc]])
+                            if SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]] == rub.Rubik[backpeiceList[adjacentPeice]]['Direction']:
+                                # print('Matched')
+                                matched = True
+                                # print(
+                                #     rub.Rubik[backpeiceList[backpeice]]['Direction'])
 
-                                    destinationFace = (
-                                        destinationFaceX, destinationFaceY, destinationFaceZ)
+                                destinationFaceX = -1 * \
+                                    rub.Rubik[backpeiceList[backpeice]
+                                              ]['Direction'][0]
+                                destinationFaceY = -1 * \
+                                    rub.Rubik[backpeiceList[backpeice]
+                                              ]['Direction'][1]
+                                destinationFaceZ = -1 * \
+                                    rub.Rubik[backpeiceList[backpeice]
+                                              ]['Direction'][2]
 
-                                    destinationMatch = False
-                                    while not destinationMatch:
-                                        CP, SP = rub.rotateFace(
-                                            CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
+                                destinationFace = (
+                                    destinationFaceX, destinationFaceY, destinationFaceZ)
 
-                                        # Adjust References
-                                        tempLoc -= 1
-                                        if tempLoc == -1:
-                                            tempLoc = len(backKeys)-1
+                                destinationMatch = False
+                                while not destinationMatch:
+                                    CP, SP = rub.rotateFace(
+                                        CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
 
-                                        if SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]] == destinationFace:
-                                            destinationMatch = True
-                                            # print('Matched to Destination Face')
+                                    # Adjust References
+                                    tempLoc -= 1
+                                    if tempLoc == -1:
+                                        tempLoc = len(backKeys)-1
 
-                                    CP, SP = leftAndRightHandRuleSides(
-                                        CP, SP, sideKeys, i, backpeiceList, backpeice)
-                            # rub.PlotRubik(CP, SP)
-                            break
-                        else:
-                            CP, SP = leftAndRightHandRuleSides(
-                                CP, SP, sideKeys, i, sideDictKeys, backpeice)
+                                    if SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]] == destinationFace:
+                                        destinationMatch = True
+                                        # print('Matched to Destination Face')
 
-                if not applicableBackPeice:
+                                CP, SP = leftAndRightHandRuleSides(
+                                    CP, SP, sideKeys, i, backpeiceList, backpeice)
+                        # rub.PlotRubik(CP, SP)
+                        break
+                    else:
+                        CP, SP = leftAndRightHandRuleSides(
+                            CP, SP, sideKeys, i, sideDictKeys, backpeice)
 
-                    # print('Before')
-                    # rub.PlotRubik(CP, SP)
+            if not applicableBackPeice:
 
-                    # backpeiceList = list(SP[backKeys[j]])
+                # print('Before')
+                # rub.PlotRubik(CP, SP)
 
-                    CP, SP = leftAndRightHandRuleSides(
-                        CP, SP, sideKeys, i, sideDictKeys, 1)
+                # backpeiceList = list(SP[backKeys[j]])
 
-                    # print('After')
-                    # rub.PlotRubik(CP, SP)
+                CP, SP = leftAndRightHandRuleSides(
+                    CP, SP, sideKeys, i, sideDictKeys, 1)
 
-                # print(f"Appliable Back Peice: {applicableBackPeice}")
-                # print(backpeice)
+                # print('After')
+                # rub.PlotRubik(CP, SP)
 
-        matchCount = 0
-        for m in range(len(sideKeys)):
-            # print(SP[sideKeys[i]])
-            sideKeysList = list(SP[sideKeys[m]])
-            # Check if side peice is not in the correct position
-            if (rub.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[m]][sideKeysList[1]]) or (rub.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[m]][sideKeysList[2]]):
-                continue
-            else:
-                matchCount += 1
+            # print(f"Appliable Back Peice: {applicableBackPeice}")
+            # print(backpeice)
 
-        if matchCount == 4:
-            SecondLayerSolved = True
-            print('2nd LAYER ALL MATCHED')
+    matchCount = 0
+    for m in range(len(sideKeys)):
+        # print(SP[sideKeys[i]])
+        sideKeysList = list(SP[sideKeys[m]])
+        # Check if side peice is not in the correct position
+        if (rub.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[m]][sideKeysList[1]]) or (rub.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[m]][sideKeysList[2]]):
+            continue
+        else:
+            matchCount += 1
 
-        if attempt == 25:
-            fail += 1
-            rub.PlotRubik(CP, SP)
-            SecondLayerSolved = True
+    if matchCount == 4:
+        SecondLayerSolved = True
+        print('2nd LAYER ALL MATCHED')
 
-print(f"Number of failures: {fail}")
 # print(matchCount)
 rub.PlotRubik(CP, SP)
