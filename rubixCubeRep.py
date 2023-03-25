@@ -1058,12 +1058,8 @@ class RubikCube:
 
     def SolveWhiteCross(self, CP, SP):
         ColorFlag = True
-        fail = 0
         solve = 0
-        temp = 0
-        lim = 20
         while ColorFlag:
-            fix = 0
             spKeys = list(SP.keys())
             for i in range(len(SP)):
                 # Get a list of Keys to navigate through to the colors within a specific side peice
@@ -1355,19 +1351,14 @@ class RubikCube:
                                             CP, SP = self.rotateColumn(
                                                 CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
                                             break
-            temp += 1
             try:
                 if (SP['S1']['White'][2] == 1) and (SP['S5']['White'][2] == 1) and (SP['S6']['White'][2] == 1) and (SP['S10']['White'][2] == 1):
                     if (SP['S1']['Green'][1] == -1) and (SP['S5']['Orange'][0] == -1) and (SP['S6']['Red'][0] == 1) and (SP['S10']['Blue'][1] == 1):
-                        # print('ALL MATCHING')
+                        print('White Cross Matched')
                         ColorFlag = False
                         solve += 1
             except:
-                print('NOT MATCHED')
-                if temp == lim:
-                    fail += 1
-                    self.PlotRubik(CP, SP)
-                    break
+                continue
 
         # print(f"The Cube Could not be Solved {fail} times")
         # print(f"The Cube was Solved {solve} times")
@@ -1662,462 +1653,352 @@ class RubikCube:
                                     match = True
                                     CP, SP = self.RightHandRule(
                                         CP, SP, cpKeys[i])
-                        # print('2')
-                        # colorKeys = list(CP[cpKeys[i]].keys())
-                        # if (colorKeys[1] in orgDictColors) and (colorKeys[2] in orgDictColors) and (colorKeys[3] in orgDictColors):
-                        #     # Check Orientation and Turn Corner
-                        #     correctOrientation = 0
-                        #     while correctOrientation != 4:
 
-                        #         correctOrientation = 0
-                        #         for k in range(len(colorKeys)):
-                        #             try:
-                        #                 if (rub.CornerDict[cpKeys[i]][colorKeys[k]] == CP[cpKeys[i]][colorKeys[k]]):
-                        #                     correctOrientation += 1
-                        #                     orientationCount += 1
-                        #             except:
-                        #                 break
-
-                        #         if correctOrientation != 4:
-                        #             CP, SP = RightHandRule(CP, SP, cpKeys[i])
-                        #             CP, SP = RightHandRule(CP, SP, cpKeys[i])
-                        # print('3')
-
-                try:
-                    checkCount = 0
-                    for m in range(len(cpKeys)):
-                        colorKeys = list(CP[cpKeys[m]].keys())
-                        orgDictColors = list(rub.CornerDict[cpKeys[m]].keys())
-                        if (colorKeys[1] in orgDictColors) and (colorKeys[2] in orgDictColors) and (colorKeys[3] in orgDictColors):
-                            if CP[cpKeys[m]]['White'][2] == 1:
-                                checkCount += 1
-                    if checkCount == 4:
-                        print('All Matching')
-                        CornerMatch = True
-                except:
-                    break
+            try:
+                checkCount = 0
+                for m in range(len(cpKeys)):
+                    colorKeys = list(CP[cpKeys[m]].keys())
+                    orgDictColors = list(rub.CornerDict[cpKeys[m]].keys())
+                    if (colorKeys[1] in orgDictColors) and (colorKeys[2] in orgDictColors) and (colorKeys[3] in orgDictColors):
+                        if CP[cpKeys[m]]['White'][2] == 1:
+                            checkCount += 1
+                if checkCount == 4:
+                    print('Front Face Corners Matched')
+                    CornerMatch = True
+            except:
+                break
         return CP, SP
 
+    def SolveSecondLayer(self, CP, SP):
+        # Solve Second Layer Sides
+        sideKeys = ['S2', 'S4', 'S9', 'S11']
+        backKeys = ['S3', 'S7', 'S12', 'S8']
+        SecondLayerSolved = False
+        # rub.PlotRubik(CP, SP)
 
-def CorrectSideCube(SP):
-    count = 0
-    if SP['S1']['Location'] != (1, 0, 0):
-        count += 1
-    elif SP['S2']['Location'] != (2, 1, 0):
-        count += 1
-    elif SP['S3']['Location'] != (1, 2, 0):
-        count += 1
-    elif SP['S4']['Location'] != (0, 1, 0):
-        count += 1
-    elif SP['S5']['Location'] != (0, 0, 1):
-        count += 1
-    elif SP['S6']['Location'] != (2, 0, 1):
-        count += 1
-    elif SP['S7']['Location'] != (2, 2, 1):
-        count += 1
-    elif SP['S8']['Location'] != (0, 2, 1):
-        count += 1
-    elif SP['S9']['Location'] != (0, 1, 2):
-        count += 1
-    elif SP['S10']['Location'] != (1, 0, 2):
-        count += 1
-    elif SP['S11']['Location'] != (2, 1, 2):
-        count += 1
-    elif SP['S12']['Location'] != (1, 2, 2):
-        count += 1
-    return count
+        attempt = 0
 
+        while not SecondLayerSolved:
+            attempt += 1
+            for i in range(len(sideKeys)):
 
-def CorrectCornerCube(CP):
-    count = 0
-    if CP['C1']['Location'] != (0, 0, 0):
-        count += 1
-    elif CP['C2']['Location'] != (2, 0, 0):
-        count += 1
-    elif CP['C3']['Location'] != (2, 2, 0):
-        count += 1
-    elif CP['C4']['Location'] != (0, 2, 0):
-        count += 1
-    elif CP['C5']['Location'] != (0, 0, 2):
-        count += 1
-    elif CP['C6']['Location'] != (2, 0, 2):
-        count += 1
-    elif CP['C7']['Location'] != (2, 2, 2):
-        count += 1
-    elif CP['C8']['Location'] != (0, 2, 2):
-        count += 1
-    return count
+                # print(SP[sideKeys[i]])
+                sideKeysList = list(SP[sideKeys[i]])
+                # Check if side peice is not in the correct position
+                if (self.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[i]][sideKeysList[1]]) or (self.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[i]][sideKeysList[2]]):
+                    # Check the back face for the correct peice
+                    # print(self.SideDict[sideKeys[i]].keys())
 
+                    sideDictKeys = list(self.SideDict[sideKeys[i]].keys())
+                    for j in range(len(backKeys)):
+                        matched = False
+                        applicableBackPeice = False
+                        backpeiceList = list(SP[backKeys[j]])
+                        if (sideDictKeys[1] == backpeiceList[1]) and (sideDictKeys[2] == backpeiceList[2]):
+                            applicableBackPeice = True
+                            # print(backpeiceList)
+                            # print('True')
+                            # Find the color adjacent to the back face
+                            adjacentPeice = 0
+                            for k in range(len(backpeiceList)):
+                                if backpeiceList[k] != 'Location':
+                                    if SP[backKeys[j]][backpeiceList[k]][2] != -1:
+                                        # print(SP[backKeys[j]][backpeiceList[k]])
+                                        # print(backpeiceList[k])
+                                        adjacentPeice = k
+                                        if k == 1:
+                                            backpeice = 2
+                                        else:
+                                            backpeice = 1
 
-def wcCurrESide(CP, SP, sidePeiceLocation):
-    # print('Rotating until X or Y face matches the front White face')
-    matched = False
-    sidePeiceRotating = spKeys[i]
-    row = False
-    column = False
+                            # print(backpeiceList[adjacentPeice])
+                            # if adjacentPeice != 0:
+                            # print(SP[backKeys[j]][backpeiceList[adjacentPeice]])
+                            # print(backpeiceList[adjacentPeice])
+                            # print(self.Rubik[backpeiceList[adjacentPeice]]['Direction'])
 
-    # Set Arrays to Generic Variables
-    if sidePeiceLocation[0] == 1:
-        cornerArray = rub.rightColumnC
-        sideArray = rub.rightColumnS
-        column = True
-    elif sidePeiceLocation[0] == -1:
-        cornerArray = rub.leftColumnC
-        sideArray = rub.leftColumnS
-        column = True
-    elif sidePeiceLocation[1] == 1:
-        cornerArray = rub.topRowC
-        sideArray = rub.topRowS
-        row = True
-    elif sidePeiceLocation[1] == -1:
-        cornerArray = rub.bottomRowC
-        sideArray = rub.bottomRowS
-        row = True
+                            if self.Rubik[backpeiceList[adjacentPeice]]['Direction'] != SP[backKeys[j]][backpeiceList[adjacentPeice]]:
+                                # print('1')
+                                tempLoc = j
+                                while not matched:
 
-    while not matched:
+                                    # print(SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]])
+                                    # print(SP[backKeys[tempLoc]])
+                                    # print(backKeys[tempLoc])
+                                    # print(tempLoc)
+                                    # Rotate Backface
+                                    CP, SP = self.rotateFace(
+                                        CP, self.backFaceC, SP, self.backFaceS, 'CW')
 
-        # print(sideArray)
-        # Rotate Column
-        if column:
-            CP, SP = rub.rotateColumn(CP, cornerArray, SP,
-                                      sideArray, 'CCW')
-        elif row:
-            CP, SP = rub.rotateRow(CP, cornerArray, SP,
-                                   sideArray, 'CCW')
-        # Get the index of the side we're rotating
-        rotatedSide = sideArray.index(
-            sidePeiceRotating)
+                                    # Adjust References
+                                    tempLoc -= 1
+                                    if tempLoc == -1:
+                                        tempLoc = len(backKeys)-1
 
-        # Increment the side being rotated to account for the side name change which occurred due to rotation
-        if column:
-            # if the index is the last item in the list set the value to -1 to avoid indexing errors
-            if rotatedSide == 0:
-                rotatedSide = len(sideArray)
-            sidePeiceRotating = sideArray[rotatedSide-1]
-        elif row:
-            # if the index is the last item in the list set the value to -1 to avoid indexing errors
-            if rotatedSide == len(sideArray) - 1:
-                rotatedSide = -1
-            sidePeiceRotating = sideArray[rotatedSide+1]
-        sidePeiceLocation = SP[sidePeiceRotating
-                               ][spSpecificKeys[otherColorIndex]]
+                                    # print()
+                                    # print(SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]])
+                                    # print(SP[backKeys[tempLoc]])
+                                    # print(backKeys[tempLoc])
+                                    # print(tempLoc)
 
-        whitePeiceLocation = SP[sidePeiceRotating
-                                ][spSpecificKeys[whiteColorIndex]]
+                                    # backpeiceList = list(SP[backKeys[tempLoc]])
+                                    if SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]] == self.Rubik[backpeiceList[adjacentPeice]]['Direction']:
+                                        # print('Matched')
+                                        matched = True
+                                        # print(
+                                        #     self.Rubik[backpeiceList[backpeice]]['Direction'])
 
-        currentCenter = rub.Rubik[spSpecificKeys[otherColorIndex]]['Direction']
+                                        destinationFaceX = -1 * \
+                                            self.Rubik[backpeiceList[backpeice]
+                                                       ]['Direction'][0]
+                                        destinationFaceY = -1 * \
+                                            self.Rubik[backpeiceList[backpeice]
+                                                       ]['Direction'][1]
+                                        destinationFaceZ = -1 * \
+                                            self.Rubik[backpeiceList[backpeice]
+                                                       ]['Direction'][2]
 
-        if sidePeiceLocation == currentCenter and whitePeiceLocation[2] == 1:
-            matched = True
-    return CP, SP
+                                        destinationFace = (
+                                            destinationFaceX, destinationFaceY, destinationFaceZ)
 
+                                        destinationMatch = False
+                                        while not destinationMatch:
+                                            CP, SP = self.rotateFace(
+                                                CP, self.backFaceC, SP, self.backFaceS, 'CW')
 
-def wcCurrOppSide(CP, SP, sidePeiceLocation, currentCenter, i):
-    if (currentCenter[0] + sidePeiceLocation[0] == 0 and (abs(currentCenter[0]) > 0 and abs(sidePeiceLocation[0]) > 0)) or (currentCenter[1] + sidePeiceLocation[1] == 0 and (abs(currentCenter[1]) > 0 and abs(sidePeiceLocation[1]) > 0)):
-        # print('Opposite Found')
+                                            # Adjust References
+                                            tempLoc -= 1
+                                            if tempLoc == -1:
+                                                tempLoc = len(backKeys)-1
 
-        front, back, top, bottom, right, left = rub.rowColumnFaceS(
-            spKeys[i])
-        # print(spKeys[i])
-        if bottom:
-            # print('Bottom')
-            if right:
-                # print('Right')
+                                            if SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]] == destinationFace:
+                                                destinationMatch = True
+                                                # print('Matched to Destination Face')
 
-                for i in range(2):
-                    if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
-                        CP, SP = rub.rotateColumn(
-                            CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
-                    else:
-                        CP, SP = rub.rotateRow(
-                            CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
-                if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
-                    CP, SP = rub.rotateRow(
-                        CP, rub.topRowC, SP, rub.topRowS, 'CW')
-                    CP, SP = rub.rotateColumn(
-                        CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
-                    CP, SP = rub.rotateColumn(
-                        CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
+                                        CP, SP = self.leftAndRightHandRuleSides(
+                                            CP, SP, sideKeys, i, backpeiceList, backpeice)
+                                # self.PlotRubik(CP, SP)
+                                break
+                            else:
+                                CP, SP = self.leftAndRightHandRuleSides(
+                                    CP, SP, sideKeys, i, sideDictKeys, backpeice)
+
+                    if not applicableBackPeice:
+
+                        # print('Before')
+                        # self.PlotRubik(CP, SP)
+
+                        # backpeiceList = list(SP[backKeys[j]])
+
+                        CP, SP = self.leftAndRightHandRuleSides(
+                            CP, SP, sideKeys, i, sideDictKeys, 1)
+
+                        # print('After')
+                        # self.PlotRubik(CP, SP)
+
+                    # print(f"Appliable Back Peice: {applicableBackPeice}")
+                    # print(backpeice)
+
+            matchCount = 0
+            for m in range(len(sideKeys)):
+                # print(SP[sideKeys[i]])
+                sideKeysList = list(SP[sideKeys[m]])
+                # Check if side peice is not in the correct position
+                if (self.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[m]][sideKeysList[1]]) or (self.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[m]][sideKeysList[2]]):
+                    continue
                 else:
-                    CP, SP = rub.rotateColumn(
-                        CP, rub.leftColumnC, SP, rub.leftColumnS, 'CW')
-                    CP, SP = rub.rotateRow(
-                        CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
-                    CP, SP = rub.rotateRow(
-                        CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
+                    matchCount += 1
 
-                # print('Placed')
-            elif left:
-                # print('CW')
-                CP, SP = rub.rotateFace(CP, rub.frontFaceC,
-                                        SP, rub.frontFaceS, 'CW')
-                for i in range(2):
-                    if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
-                        CP, SP = rub.rotateColumn(
-                            CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
-                    else:
-                        CP, SP = rub.rotateRow(
-                            CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
-                CP, SP = rub.rotateFace(CP, rub.frontFaceC,
-                                        SP, rub.frontFaceS, 'CCW')
-                CP, SP = rub.rotateRow(CP, rub.topRowC,
-                                       SP, rub.topRowS, 'CCW')
-                # print('Placed')
-        if top:
-            # print('top')
-            if right:
-                # print('Right')
-                CP, SP = rub.rotateFace(CP, rub.frontFaceC,
-                                        SP, rub.frontFaceS, 'CCW')
-                for i in range(2):
-                    if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
-                        CP, SP = rub.rotateColumn(
-                            CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
-                    else:
-                        CP, SP = rub.rotateRow(
-                            CP, rub.topRowC, SP, rub.topRowS, 'CCW')
-                CP, SP = rub.rotateFace(CP, rub.frontFaceC,
-                                        SP, rub.frontFaceS, 'CW')
-                CP, SP = rub.rotateRow(CP, rub.bottomRowC,
-                                       SP, rub.bottomRowS, 'CW')
-                # print('Placed')
-            elif left:
-                # print('Left')
-                # CP, SP = rub.rotateFace(CP, rub.frontFaceC,
-                #                         SP, rub.frontFaceS, 'CW')
-                for i in range(2):
-                    if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
-                        CP, SP = rub.rotateColumn(
-                            CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
-                    else:
-                        CP, SP = rub.rotateRow(
-                            CP, rub.topRowC, SP, rub.topRowS, 'CCW')
+            if matchCount == 4:
+                SecondLayerSolved = True
+                print('2nd Layer Matched')
+        return CP, SP
 
-                if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
-                    # Move White Peice to align with White Center
-                    CP, SP = rub.rotateRow(
-                        CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
+    def leftAndRightHandRuleSides(self, CP, SP, sideKeys, i, backpeiceList, backpeice):
 
-                    # Move Left Column to ensure the left side Peice remains undisturbed
-                    CP, SP = rub.rotateColumn(
-                        CP, rub.leftColumnC, SP, rub.leftColumnS, 'CW')
-                    CP, SP = rub.rotateColumn(
-                        CP, rub.leftColumnC, SP, rub.leftColumnS, 'CW')
-                else:
-                    # Move White Peice to align with White Center
-                    CP, SP = rub.rotateColumn(
-                        CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
+        frontface, backface, toprow, bottomrow, rightcolumn, leftcolumn = self.rowColumnFaceS(
+            sideKeys[i])
 
-                    # Move top Row to ensure the left side Peice remains undisturbed
-                    CP, SP = rub.rotateRow(
-                        CP, rub.topRowC, SP, rub.topRowS, 'CCW')
-                    CP, SP = rub.rotateRow(
-                        CP, rub.topRowC, SP, rub.topRowS, 'CCW')
-                # print('Placed')
-    return CP, SP
+        # print(backpeiceList[backpeice])
 
+        if backpeiceList[backpeice] == 'Orange':
 
-def RightHandRule(self, CP, SP, SidePeice, Color):
+            # print('Left Column')
+            if toprow:
+                # print('S9: Left')
+                # Left Column
+                CP, SP = self.rotateColumn(
+                    CP, self.leftColumnC, SP, self.leftColumnS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                CP, SP = self.rotateColumn(
+                    CP, self.leftColumnC, SP, self.leftColumnS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                # Back Face
+                # Top Row
+                CP, SP = self.rotateRow(
+                    CP, self.topRowC, SP, self.topRowS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                CP, SP = self.rotateRow(
+                    CP, self.topRowC, SP, self.topRowS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+            else:
+                # print('S4: Right')
+                # Left Column
+                CP, SP = self.rotateColumn(
+                    CP, self.leftColumnC, SP, self.leftColumnS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                CP, SP = self.rotateColumn(
+                    CP, self.leftColumnC, SP, self.leftColumnS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                # Back Face
+                # Bottom Row
+                CP, SP = self.rotateRow(
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                CP, SP = self.rotateRow(
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+        elif backpeiceList[backpeice] == 'Red':
+            # print('Right Column')
+            if toprow:
+                # print('S11: Right')
+                CP, SP = self.rotateColumn(
+                    CP, self.rightColumnC, SP, self.rightColumnS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                CP, SP = self.rotateColumn(
+                    CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                # Back Face
+                # Top Row
+                CP, SP = self.rotateRow(
+                    CP, self.topRowC, SP, self.topRowS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                CP, SP = self.rotateRow(
+                    CP, self.topRowC, SP, self.topRowS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+            else:
+                # print('S2: Left')
+                CP, SP = self.rotateColumn(
+                    CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                CP, SP = self.rotateColumn(
+                    CP, self.rightColumnC, SP, self.rightColumnS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                # Back Face
+                # Bottom Row
+                CP, SP = self.rotateRow(
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                CP, SP = self.rotateRow(
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+        elif backpeiceList[backpeice] == 'Blue':
+            # print('Top Row')
+            if rightcolumn:
+                # print('S11: Left')
+                # Top Row
+                CP, SP = self.rotateRow(
+                    CP, self.topRowC, SP, self.topRowS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                CP, SP = self.rotateRow(
+                    CP, self.topRowC, SP, self.topRowS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                # Back Face
+                # Right Column
+                CP, SP = self.rotateColumn(
+                    CP, self.rightColumnC, SP, self.rightColumnS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                CP, SP = self.rotateColumn(
+                    CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+            else:
+                # print('S9: Right')
+                # Top Row
+                CP, SP = self.rotateRow(
+                    CP, self.topRowC, SP, self.topRowS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                CP, SP = self.rotateRow(
+                    CP, self.topRowC, SP, self.topRowS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                # Back Face
+                # Left Column
+                CP, SP = self.rotateColumn(
+                    CP, self.leftColumnC, SP, self.leftColumnS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                CP, SP = self.rotateColumn(
+                    CP, self.leftColumnC, SP, self.leftColumnS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+        elif backpeiceList[backpeice] == 'Green':
+            # print('Bottom Row')
+            if rightcolumn:
+                # print('S2: : Right')
+                # Bottom Row
+                CP, SP = self.rotateRow(
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                CP, SP = self.rotateRow(
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                # Back Face
+                # Right Column
+                CP, SP = self.rotateColumn(
+                    CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                CP, SP = self.rotateColumn(
+                    CP, self.rightColumnC, SP, self.rightColumnS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
 
-    if Peice == 'C6':
-        rightRuleC = self.rightColumnC
-        rightRuleS = self.rightColumnS
+            else:
+                # print('S4: Left')
+                # Bottom Row
+                CP, SP = self.rotateRow(
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
+                CP, SP = self.rotateRow(
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                # Back Face
+                # Left Column
+                CP, SP = self.rotateColumn(
+                    CP, self.leftColumnC, SP, self.leftColumnS, 'CCW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                CP, SP = self.rotateColumn(
+                    CP, self.leftColumnC, SP, self.leftColumnS, 'CW')
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, rub.backFaceS, 'CW')
 
-        CP, SP = self.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CW')
-        CP, SP = self.rotateFace(
-            CP, self.backFaceC, SP, self.backFaceS, 'CCW')
-        CP, SP = self.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CCW')
-        CP, SP = self.rotateFace(
-            CP, self.backFaceC, SP, self.backFaceS, 'CW')
-
-    return CP, SP
-
-
-def leftAndRightHandRuleSides(CP, SP, sideKeys, i, backpeiceList, backpeice):
-
-    frontface, backface, toprow, bottomrow, rightcolumn, leftcolumn = rub.rowColumnFaceS(
-        sideKeys[i])
-
-    # print(backpeiceList[backpeice])
-
-    if backpeiceList[backpeice] == 'Orange':
-
-        # print('Left Column')
-        if toprow:
-            # print('S9: Left')
-            # Left Column
-            CP, SP = rub.rotateColumn(
-                CP, rub.leftColumnC, SP, rub.leftColumnS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            CP, SP = rub.rotateColumn(
-                CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            # Back Face
-            # Top Row
-            CP, SP = rub.rotateRow(
-                CP, rub.topRowC, SP, rub.topRowS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            CP, SP = rub.rotateRow(
-                CP, rub.topRowC, SP, rub.topRowS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-        else:
-            # print('S4: Right')
-            # Left Column
-            CP, SP = rub.rotateColumn(
-                CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            CP, SP = rub.rotateColumn(
-                CP, rub.leftColumnC, SP, rub.leftColumnS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            # Back Face
-            # Bottom Row
-            CP, SP = rub.rotateRow(
-                CP, rub.bottomRowC, SP, rub.bottomRowS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            CP, SP = rub.rotateRow(
-                CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-    elif backpeiceList[backpeice] == 'Red':
-        # print('Right Column')
-        if toprow:
-            # print('S11: Right')
-            CP, SP = rub.rotateColumn(
-                CP, rub.rightColumnC, SP, rub.rightColumnS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            CP, SP = rub.rotateColumn(
-                CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            # Back Face
-            # Top Row
-            CP, SP = rub.rotateRow(
-                CP, rub.topRowC, SP, rub.topRowS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            CP, SP = rub.rotateRow(
-                CP, rub.topRowC, SP, rub.topRowS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-        else:
-            # print('S2: Left')
-            CP, SP = rub.rotateColumn(
-                CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            CP, SP = rub.rotateColumn(
-                CP, rub.rightColumnC, SP, rub.rightColumnS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            # Back Face
-            # Bottom Row
-            CP, SP = rub.rotateRow(
-                CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            CP, SP = rub.rotateRow(
-                CP, rub.bottomRowC, SP, rub.bottomRowS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-    elif backpeiceList[backpeice] == 'Blue':
-        # print('Top Row')
-        if rightcolumn:
-            # print('S11: Left')
-            # Top Row
-            CP, SP = rub.rotateRow(
-                CP, rub.topRowC, SP, rub.topRowS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            CP, SP = rub.rotateRow(
-                CP, rub.topRowC, SP, rub.topRowS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            # Back Face
-            # Right Column
-            CP, SP = rub.rotateColumn(
-                CP, rub.rightColumnC, SP, rub.rightColumnS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            CP, SP = rub.rotateColumn(
-                CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-        else:
-            # print('S9: Right')
-            # Top Row
-            CP, SP = rub.rotateRow(
-                CP, rub.topRowC, SP, rub.topRowS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            CP, SP = rub.rotateRow(
-                CP, rub.topRowC, SP, rub.topRowS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            # Back Face
-            # Left Column
-            CP, SP = rub.rotateColumn(
-                CP, rub.leftColumnC, SP, rub.leftColumnS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            CP, SP = rub.rotateColumn(
-                CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-    elif backpeiceList[backpeice] == 'Green':
-        # print('Bottom Row')
-        if rightcolumn:
-            # print('S2: : Right')
-            # Bottom Row
-            CP, SP = rub.rotateRow(
-                CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            CP, SP = rub.rotateRow(
-                CP, rub.bottomRowC, SP, rub.bottomRowS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            # Back Face
-            # Right Column
-            CP, SP = rub.rotateColumn(
-                CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            CP, SP = rub.rotateColumn(
-                CP, rub.rightColumnC, SP, rub.rightColumnS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-
-        else:
-            # print('S4: Left')
-            # Bottom Row
-            CP, SP = rub.rotateRow(
-                CP, rub.bottomRowC, SP, rub.bottomRowS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-            CP, SP = rub.rotateRow(
-                CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            # Back Face
-            # Left Column
-            CP, SP = rub.rotateColumn(
-                CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CCW')
-            CP, SP = rub.rotateColumn(
-                CP, rub.leftColumnC, SP, rub.leftColumnS, 'CW')
-            CP, SP = rub.rotateFace(
-                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-
-    return CP, SP
+        return CP, SP
 
 
 Countc = 0
@@ -2134,153 +2015,13 @@ fail = 0
 
 # Next Steps
 CP, SP = rub.randomizer(CP, SP, 500)
+rub.PlotRubik(CP, SP)
 # Solve White Cross
 CP, SP = rub.SolveWhiteCross(CP, SP)
+rub.PlotRubik(CP, SP)
 # Solve White Corners
 CP, SP = rub.SolveWhiteCorners(CP, SP)
-
-# Solve Second Layer Sides
-sideKeys = ['S2', 'S4', 'S9', 'S11']
-backKeys = ['S3', 'S7', 'S12', 'S8']
-SecondLayerSolved = False
-# rub.PlotRubik(CP, SP)
-
-attempt = 0
-
-while not SecondLayerSolved:
-    attempt += 1
-    for i in range(len(sideKeys)):
-
-        # print(SP[sideKeys[i]])
-        sideKeysList = list(SP[sideKeys[i]])
-        # Check if side peice is not in the correct position
-        if (rub.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[i]][sideKeysList[1]]) or (rub.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[i]][sideKeysList[2]]):
-            # Check the back face for the correct peice
-            # print(rub.SideDict[sideKeys[i]].keys())
-
-            sideDictKeys = list(rub.SideDict[sideKeys[i]].keys())
-            for j in range(len(backKeys)):
-                matched = False
-                applicableBackPeice = False
-                backpeiceList = list(SP[backKeys[j]])
-                if (sideDictKeys[1] == backpeiceList[1]) and (sideDictKeys[2] == backpeiceList[2]):
-                    applicableBackPeice = True
-                    # print(backpeiceList)
-                    # print('True')
-                    # Find the color adjacent to the back face
-                    adjacentPeice = 0
-                    for k in range(len(backpeiceList)):
-                        if backpeiceList[k] != 'Location':
-                            if SP[backKeys[j]][backpeiceList[k]][2] != -1:
-                                # print(SP[backKeys[j]][backpeiceList[k]])
-                                # print(backpeiceList[k])
-                                adjacentPeice = k
-                                if k == 1:
-                                    backpeice = 2
-                                else:
-                                    backpeice = 1
-
-                    # print(backpeiceList[adjacentPeice])
-                    # if adjacentPeice != 0:
-                    # print(SP[backKeys[j]][backpeiceList[adjacentPeice]])
-                    # print(backpeiceList[adjacentPeice])
-                    # print(rub.Rubik[backpeiceList[adjacentPeice]]['Direction'])
-
-                    if rub.Rubik[backpeiceList[adjacentPeice]]['Direction'] != SP[backKeys[j]][backpeiceList[adjacentPeice]]:
-                        # print('1')
-                        tempLoc = j
-                        while not matched:
-
-                            # print(SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]])
-                            # print(SP[backKeys[tempLoc]])
-                            # print(backKeys[tempLoc])
-                            # print(tempLoc)
-                            # Rotate Backface
-                            CP, SP = rub.rotateFace(
-                                CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-
-                            # Adjust References
-                            tempLoc -= 1
-                            if tempLoc == -1:
-                                tempLoc = len(backKeys)-1
-
-                            # print()
-                            # print(SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]])
-                            # print(SP[backKeys[tempLoc]])
-                            # print(backKeys[tempLoc])
-                            # print(tempLoc)
-
-                            # backpeiceList = list(SP[backKeys[tempLoc]])
-                            if SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]] == rub.Rubik[backpeiceList[adjacentPeice]]['Direction']:
-                                # print('Matched')
-                                matched = True
-                                # print(
-                                #     rub.Rubik[backpeiceList[backpeice]]['Direction'])
-
-                                destinationFaceX = -1 * \
-                                    rub.Rubik[backpeiceList[backpeice]
-                                              ]['Direction'][0]
-                                destinationFaceY = -1 * \
-                                    rub.Rubik[backpeiceList[backpeice]
-                                              ]['Direction'][1]
-                                destinationFaceZ = -1 * \
-                                    rub.Rubik[backpeiceList[backpeice]
-                                              ]['Direction'][2]
-
-                                destinationFace = (
-                                    destinationFaceX, destinationFaceY, destinationFaceZ)
-
-                                destinationMatch = False
-                                while not destinationMatch:
-                                    CP, SP = rub.rotateFace(
-                                        CP, rub.backFaceC, SP, rub.backFaceS, 'CW')
-
-                                    # Adjust References
-                                    tempLoc -= 1
-                                    if tempLoc == -1:
-                                        tempLoc = len(backKeys)-1
-
-                                    if SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]] == destinationFace:
-                                        destinationMatch = True
-                                        # print('Matched to Destination Face')
-
-                                CP, SP = leftAndRightHandRuleSides(
-                                    CP, SP, sideKeys, i, backpeiceList, backpeice)
-                        # rub.PlotRubik(CP, SP)
-                        break
-                    else:
-                        CP, SP = leftAndRightHandRuleSides(
-                            CP, SP, sideKeys, i, sideDictKeys, backpeice)
-
-            if not applicableBackPeice:
-
-                # print('Before')
-                # rub.PlotRubik(CP, SP)
-
-                # backpeiceList = list(SP[backKeys[j]])
-
-                CP, SP = leftAndRightHandRuleSides(
-                    CP, SP, sideKeys, i, sideDictKeys, 1)
-
-                # print('After')
-                # rub.PlotRubik(CP, SP)
-
-            # print(f"Appliable Back Peice: {applicableBackPeice}")
-            # print(backpeice)
-
-    matchCount = 0
-    for m in range(len(sideKeys)):
-        # print(SP[sideKeys[i]])
-        sideKeysList = list(SP[sideKeys[m]])
-        # Check if side peice is not in the correct position
-        if (rub.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[m]][sideKeysList[1]]) or (rub.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[m]][sideKeysList[2]]):
-            continue
-        else:
-            matchCount += 1
-
-    if matchCount == 4:
-        SecondLayerSolved = True
-        print('2nd LAYER ALL MATCHED')
-
-# print(matchCount)
+rub.PlotRubik(CP, SP)
+# Solve Second Layer
+CP, SP = rub.SolveSecondLayer(CP, SP)
 rub.PlotRubik(CP, SP)

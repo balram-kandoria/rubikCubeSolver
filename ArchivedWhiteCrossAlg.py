@@ -227,3 +227,237 @@ for i in range(500):
                         CP, SP = rub.rotateColumn(
                             CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
                         fix += 1
+
+
+def CorrectSideCube(SP):
+    count = 0
+    if SP['S1']['Location'] != (1, 0, 0):
+        count += 1
+    elif SP['S2']['Location'] != (2, 1, 0):
+        count += 1
+    elif SP['S3']['Location'] != (1, 2, 0):
+        count += 1
+    elif SP['S4']['Location'] != (0, 1, 0):
+        count += 1
+    elif SP['S5']['Location'] != (0, 0, 1):
+        count += 1
+    elif SP['S6']['Location'] != (2, 0, 1):
+        count += 1
+    elif SP['S7']['Location'] != (2, 2, 1):
+        count += 1
+    elif SP['S8']['Location'] != (0, 2, 1):
+        count += 1
+    elif SP['S9']['Location'] != (0, 1, 2):
+        count += 1
+    elif SP['S10']['Location'] != (1, 0, 2):
+        count += 1
+    elif SP['S11']['Location'] != (2, 1, 2):
+        count += 1
+    elif SP['S12']['Location'] != (1, 2, 2):
+        count += 1
+    return count
+
+
+def CorrectCornerCube(CP):
+    count = 0
+    if CP['C1']['Location'] != (0, 0, 0):
+        count += 1
+    elif CP['C2']['Location'] != (2, 0, 0):
+        count += 1
+    elif CP['C3']['Location'] != (2, 2, 0):
+        count += 1
+    elif CP['C4']['Location'] != (0, 2, 0):
+        count += 1
+    elif CP['C5']['Location'] != (0, 0, 2):
+        count += 1
+    elif CP['C6']['Location'] != (2, 0, 2):
+        count += 1
+    elif CP['C7']['Location'] != (2, 2, 2):
+        count += 1
+    elif CP['C8']['Location'] != (0, 2, 2):
+        count += 1
+    return count
+
+
+def wcCurrESide(CP, SP, sidePeiceLocation):
+    # print('Rotating until X or Y face matches the front White face')
+    matched = False
+    sidePeiceRotating = spKeys[i]
+    row = False
+    column = False
+
+    # Set Arrays to Generic Variables
+    if sidePeiceLocation[0] == 1:
+        cornerArray = rub.rightColumnC
+        sideArray = rub.rightColumnS
+        column = True
+    elif sidePeiceLocation[0] == -1:
+        cornerArray = rub.leftColumnC
+        sideArray = rub.leftColumnS
+        column = True
+    elif sidePeiceLocation[1] == 1:
+        cornerArray = rub.topRowC
+        sideArray = rub.topRowS
+        row = True
+    elif sidePeiceLocation[1] == -1:
+        cornerArray = rub.bottomRowC
+        sideArray = rub.bottomRowS
+        row = True
+
+    while not matched:
+
+        # print(sideArray)
+        # Rotate Column
+        if column:
+            CP, SP = rub.rotateColumn(CP, cornerArray, SP,
+                                      sideArray, 'CCW')
+        elif row:
+            CP, SP = rub.rotateRow(CP, cornerArray, SP,
+                                   sideArray, 'CCW')
+        # Get the index of the side we're rotating
+        rotatedSide = sideArray.index(
+            sidePeiceRotating)
+
+        # Increment the side being rotated to account for the side name change which occurred due to rotation
+        if column:
+            # if the index is the last item in the list set the value to -1 to avoid indexing errors
+            if rotatedSide == 0:
+                rotatedSide = len(sideArray)
+            sidePeiceRotating = sideArray[rotatedSide-1]
+        elif row:
+            # if the index is the last item in the list set the value to -1 to avoid indexing errors
+            if rotatedSide == len(sideArray) - 1:
+                rotatedSide = -1
+            sidePeiceRotating = sideArray[rotatedSide+1]
+        sidePeiceLocation = SP[sidePeiceRotating
+                               ][spSpecificKeys[otherColorIndex]]
+
+        whitePeiceLocation = SP[sidePeiceRotating
+                                ][spSpecificKeys[whiteColorIndex]]
+
+        currentCenter = rub.Rubik[spSpecificKeys[otherColorIndex]]['Direction']
+
+        if sidePeiceLocation == currentCenter and whitePeiceLocation[2] == 1:
+            matched = True
+    return CP, SP
+
+
+def wcCurrOppSide(CP, SP, sidePeiceLocation, currentCenter, i):
+    if (currentCenter[0] + sidePeiceLocation[0] == 0 and (abs(currentCenter[0]) > 0 and abs(sidePeiceLocation[0]) > 0)) or (currentCenter[1] + sidePeiceLocation[1] == 0 and (abs(currentCenter[1]) > 0 and abs(sidePeiceLocation[1]) > 0)):
+        # print('Opposite Found')
+
+        front, back, top, bottom, right, left = rub.rowColumnFaceS(
+            spKeys[i])
+        # print(spKeys[i])
+        if bottom:
+            # print('Bottom')
+            if right:
+                # print('Right')
+
+                for i in range(2):
+                    if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
+                        CP, SP = rub.rotateColumn(
+                            CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
+                    else:
+                        CP, SP = rub.rotateRow(
+                            CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
+                if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
+                    CP, SP = rub.rotateRow(
+                        CP, rub.topRowC, SP, rub.topRowS, 'CW')
+                    CP, SP = rub.rotateColumn(
+                        CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
+                    CP, SP = rub.rotateColumn(
+                        CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
+                else:
+                    CP, SP = rub.rotateColumn(
+                        CP, rub.leftColumnC, SP, rub.leftColumnS, 'CW')
+                    CP, SP = rub.rotateRow(
+                        CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
+                    CP, SP = rub.rotateRow(
+                        CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
+
+                # print('Placed')
+            elif left:
+                # print('CW')
+                CP, SP = rub.rotateFace(CP, rub.frontFaceC,
+                                        SP, rub.frontFaceS, 'CW')
+                for i in range(2):
+                    if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
+                        CP, SP = rub.rotateColumn(
+                            CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
+                    else:
+                        CP, SP = rub.rotateRow(
+                            CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
+                CP, SP = rub.rotateFace(CP, rub.frontFaceC,
+                                        SP, rub.frontFaceS, 'CCW')
+                CP, SP = rub.rotateRow(CP, rub.topRowC,
+                                       SP, rub.topRowS, 'CCW')
+                # print('Placed')
+        if top:
+            # print('top')
+            if right:
+                # print('Right')
+                CP, SP = rub.rotateFace(CP, rub.frontFaceC,
+                                        SP, rub.frontFaceS, 'CCW')
+                for i in range(2):
+                    if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
+                        CP, SP = rub.rotateColumn(
+                            CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
+                    else:
+                        CP, SP = rub.rotateRow(
+                            CP, rub.topRowC, SP, rub.topRowS, 'CCW')
+                CP, SP = rub.rotateFace(CP, rub.frontFaceC,
+                                        SP, rub.frontFaceS, 'CW')
+                CP, SP = rub.rotateRow(CP, rub.bottomRowC,
+                                       SP, rub.bottomRowS, 'CW')
+                # print('Placed')
+            elif left:
+                # print('Left')
+                # CP, SP = rub.rotateFace(CP, rub.frontFaceC,
+                #                         SP, rub.frontFaceS, 'CW')
+                for i in range(2):
+                    if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
+                        CP, SP = rub.rotateColumn(
+                            CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
+                    else:
+                        CP, SP = rub.rotateRow(
+                            CP, rub.topRowC, SP, rub.topRowS, 'CCW')
+
+                if spSpecificKeys[otherColorIndex] == 'Green' or spSpecificKeys[otherColorIndex] == 'Blue':
+                    # Move White Peice to align with White Center
+                    CP, SP = rub.rotateRow(
+                        CP, rub.bottomRowC, SP, rub.bottomRowS, 'CCW')
+
+                    # Move Left Column to ensure the left side Peice remains undisturbed
+                    CP, SP = rub.rotateColumn(
+                        CP, rub.leftColumnC, SP, rub.leftColumnS, 'CW')
+                    CP, SP = rub.rotateColumn(
+                        CP, rub.leftColumnC, SP, rub.leftColumnS, 'CW')
+                else:
+                    # Move White Peice to align with White Center
+                    CP, SP = rub.rotateColumn(
+                        CP, rub.rightColumnC, SP, rub.rightColumnS, 'CCW')
+
+                    # Move top Row to ensure the left side Peice remains undisturbed
+                    CP, SP = rub.rotateRow(
+                        CP, rub.topRowC, SP, rub.topRowS, 'CCW')
+                    CP, SP = rub.rotateRow(
+                        CP, rub.topRowC, SP, rub.topRowS, 'CCW')
+                # print('Placed')
+    return CP, SP
+
+
+def RightHandRule(self, CP, SP, SidePeice, Color):
+
+    if Peice == 'C6':
+        rightRuleC = self.rightColumnC
+        rightRuleS = self.rightColumnS
+
+        CP, SP = self.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CW')
+        CP, SP = self.rotateFace(
+            CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+        CP, SP = self.rotateColumn(CP, rightRuleC, SP, rightRuleS, 'CCW')
+        CP, SP = self.rotateFace(
+            CP, self.backFaceC, SP, self.backFaceS, 'CW')
+
+    return CP, SP
