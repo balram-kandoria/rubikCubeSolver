@@ -2096,6 +2096,142 @@ class RubikCube:
                     CP, self.bottomRowC, SP, self.bottomRowS, 'CW')
         return CP, SP
 
+    def OrderYellowCross(self, CP, SP):
+        sidePeices = ['S3', 'S7', 'S12', 'S8']
+        isMatched = False
+
+        while not isMatched:
+
+            iteration = 0
+            current_indx = 0
+            for rotate4Times in range(4):
+                CP, SP = self.rotateFace(
+                    CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+                MatchCount = 0
+                for i in range(len(sidePeices)):
+                    # print(SP[sidePeices[i]])
+                    currentPeiceKeys = list(SP[sidePeices[i]].keys())
+                    adjacent_index = i + 1
+                    if adjacent_index == 4:
+                        adjacent_index = 0
+
+                    adjacentPeiceKeys = list(
+                        SP[sidePeices[adjacent_index]].keys())
+
+                    # Current Peice
+                    SideDirectionC = SP[sidePeices[i]][currentPeiceKeys[2]]
+                    DirectionOfCenterC = self.Rubik[currentPeiceKeys[2]
+                                                    ]['Direction']
+
+                    # Adjacent Peice
+                    SideDirectionA = SP[sidePeices[adjacent_index]
+                                        ][adjacentPeiceKeys[2]]
+                    DirectionOfCenterA = self.Rubik[adjacentPeiceKeys[2]
+                                                    ]['Direction']
+
+                    if (SideDirectionC == DirectionOfCenterC) and (SideDirectionA == DirectionOfCenterA):
+                        print(
+                            f'Adjacent Match on the {currentPeiceKeys[2]} face')
+                        iteration = rotate4Times
+                        current_indx = i
+                        MatchCount += 1
+
+                if MatchCount == 4:
+                    isMatched = True
+                    break
+
+            print(iteration)
+            print(isMatched)
+            if not isMatched:
+                for i in range(iteration+1):
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+                print(current_indx)
+                adjacent_index = current_indx + 1
+
+                if adjacent_index == 4:
+                    adjacent_index = 0
+
+                adjacentPeiceKeys = list(SP[sidePeices[adjacent_index]].keys())
+
+                # Adjacent Peice
+                SideDirectionA = SP[sidePeices[adjacent_index]
+                                    ][adjacentPeiceKeys[2]]
+                DirectionOfCenterA = self.Rubik[adjacentPeiceKeys[2]
+                                                ]['Direction']
+
+                print(adjacentPeiceKeys[2])
+
+                if adjacentPeiceKeys[2] in ['Orange', 'Red']:
+
+                    if adjacentPeiceKeys[2] == 'Orange':
+                        Direction = ['CCW', 'CW']
+                        corners = self.leftColumnC
+                        sides = self.leftColumnS
+                    else:
+                        Direction = ['CW', 'CCW']
+                        corners = self.rightColumnC
+                        sides = self.rightColumnS
+
+                    CP, SP = self.rotateColumn(
+                        CP, corners, SP, sides, Direction[0])
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+                    CP, SP = self.rotateColumn(
+                        CP, corners, SP, sides, Direction[1])
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+                    CP, SP = self.rotateColumn(
+                        CP, corners, SP, sides, Direction[0])
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+                    CP, SP = self.rotateColumn(
+                        CP, corners, SP, sides, Direction[1])
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+                else:
+                    print('Active Test')
+                    if adjacentPeiceKeys[2] == 'Green':
+                        Direction = ['CCW', 'CW']
+                        corners = self.bottomRowC
+                        sides = self.bottomRowS
+                    else:
+                        Direction = ['CW', 'CCW']
+                        corners = self.topRowC
+                        sides = self.topRowS
+
+                    CP, SP = self.rotateRow(
+                        CP, corners, SP, sides, Direction[0])
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+                    CP, SP = self.rotateRow(
+                        CP, corners, SP, sides, Direction[1])
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+                    CP, SP = self.rotateRow(
+                        CP, corners, SP, sides, Direction[0])
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+                    CP, SP = self.rotateRow(
+                        CP, corners, SP, sides, Direction[1])
+                    CP, SP = self.rotateFace(
+                        CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+        return CP, SP
+
 
 Countc = 0
 Counts = 0
@@ -2119,5 +2255,25 @@ CP, SP = rub.SolveWhiteCorners(CP, SP)
 CP, SP = rub.SolveSecondLayer(CP, SP)
 # Solve Yellow Cross
 CP, SP = rub.SolveYellowCross(CP, SP)
+# Order Yellow Cross
+CP, SP = rub.OrderYellowCross(CP, SP)
 
 rub.PlotRubik(CP, SP)
+
+
+# Orange - Left CCW
+# Blue - Top CW
+# Red Right CW
+# Green - Bottom CCW
+
+# Roatate the yellow face such that a majority of the adajcent colors
+# If two adjacent are matching their respective centers hold one of the faces at the back and the other to the right
+
+# Alg
+# Move right column up
+# Move yellow face CCW
+# Move Right column down
+# Move yellow face CCW
+# Move right column up
+# Move yellow face CW x2
+# Move Right column down
