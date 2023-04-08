@@ -515,6 +515,11 @@ class RubikCube:
         self.rotRowCorner(CP, CornerGrouping, RotDirection)
         self.rotRowSide(SP, SideGrouping, RotDirection)
 
+        if ['C5', 'C6', 'C7', 'C8'] in CornerGrouping:
+            print(f"Rotate Top Row {RotDirection}")
+        else:
+            print(f"Rotate Bottom Row {RotDirection}")
+
         return CP, SP
     # Rotate Both Sides and Corners
 
@@ -523,6 +528,12 @@ class RubikCube:
         CP = self.cornerQuirk(CP)
         self.rotColSide(SP, SideGrouping, RotDirection)
         SP = self.sideQuirk(SP)
+
+        if ['C1', 'C5', 'C8', 'C4'] in CornerGrouping:
+            print(f"Rotate Left Column {RotDirection}")
+        else:
+            print(f"Rotate Right Column {RotDirection}")
+
         return CP, SP
 
     def prettyPrint(self, Dict):
@@ -796,6 +807,12 @@ class RubikCube:
                             SP[Row][Color] = (1, 0, 0)
                         elif SP[Row][Color] == (1, 0, 0):
                             SP[Row][Color] = (0, 1, 0)
+
+        if ['C2', 'C1', 'C5', 'C6'] in corners:
+            print(f"Rotate Front Face {direction}")
+        else:
+            print(f"Rotate Back Face {direction}")
+
         return CP, SP
 
     def unmixer(self, SP):
@@ -2312,6 +2329,51 @@ class RubikCube:
 
         return CP, SP
 
+    def OrientateYellowCorners(self, CP, SP):
+        for i in range(4):
+            CornerOrientated = False
+            Cornerpeice = 'C3'
+            SidePeice = 'S3'
+
+            sideKeys = list(SP[SidePeice].keys())
+            matchingColor = sideKeys[2]
+            sideDirection = SP[SidePeice][sideKeys[2]]
+
+            cornerColorkey = list(CP[Cornerpeice].keys())
+            for j in range(len(cornerColorkey)):
+                if cornerColorkey[j] == matchingColor:
+                    indx = j
+
+            while not CornerOrientated:
+
+                currentCornerKey = list(CP[Cornerpeice].keys())
+                cornerColorDirection = CP[Cornerpeice][currentCornerKey[indx]]
+                cornerYellowDirection = CP[Cornerpeice][currentCornerKey[1]]
+
+                if (cornerYellowDirection[2] == -1) and (cornerColorDirection == sideDirection):
+                    CornerOrientated = True
+
+                if not CornerOrientated:
+                    for i in range(2):
+                        rightRuleC = self.rightColumnC
+                        rightRuleS = self.rightColumnS
+
+                        CP, SP = self.rotateColumn(
+                            CP, rightRuleC, SP, rightRuleS, 'CW')
+                        CP, SP = self.rotateFace(
+                            CP, self.frontFaceC, SP, self.frontFaceS, 'CW')
+                        CP, SP = self.rotateColumn(
+                            CP, rightRuleC, SP, rightRuleS, 'CCW')
+                        CP, SP = self.rotateFace(
+                            CP, self.frontFaceC, SP, self.frontFaceS, 'CCW')
+
+            # Rotate Back Face to start the next corner solve
+            CP, SP = self.rotateFace(
+                CP, self.backFaceC, SP, self.backFaceS, 'CCW')
+
+        print('Yellow Corners Orientated')
+        return CP, SP
+
 
 Countc = 0
 Counts = 0
@@ -2326,7 +2388,8 @@ SP = rub.SidePeices
 fail = 0
 
 # Next Steps
-CP, SP = rub.randomizer(CP, SP, 500)
+# CP, SP = rub.randomizer(CP, SP, 500)
+CP, SP = rub.rotateColumn(CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
 # Solve White Cross
 CP, SP = rub.SolveWhiteCross(CP, SP)
 # Solve White Corners
@@ -2339,5 +2402,7 @@ CP, SP = rub.SolveYellowCross(CP, SP)
 CP, SP = rub.OrderYellowCross(CP, SP)
 # Solve Yellow Corners
 CP, SP = rub.SolveYellowCorners(CP, SP)
+# Orientate Yellow Corners
+CP, SP = rub.OrientateYellowCorners(CP, SP)
 
 rub.PlotRubik(CP, SP)
