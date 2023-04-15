@@ -11,7 +11,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from mpl_toolkits import mplot3d
+from mpl_toolkits.mplot3d import axes3d
 import random
 import time
 'Axis is define with the white, orange, and green faces. Where the White is on the XY-Plane, Green is on the XZ-Plane, and orange is on the YZ-Plane (Assuming Positive Quadrant)'
@@ -26,7 +26,7 @@ class RubikCube:
         self.Red = '#FF0000'
         self.Green = '#006400'
         self.White = '#D3D3D3'
-        self.Orange = '#FFB52E'
+        self.Orange = '#f78707'
 
         # Define Corner Peices
         # Locations: x, z, y
@@ -168,7 +168,7 @@ class RubikCube:
         print('Printing Rubik')
         panel = 2j
         fig = plt.figure()
-        ax = mplot3d.Axes3D(fig)
+        ax = fig.add_subplot(111, projection='3d')
         ax.set_autoscale_on(True)
         for faceColor in self.Rubik.keys():
             # print(rub1[faceColor]['Location'])
@@ -2390,8 +2390,10 @@ fail = 0
 # Next Steps
 # CP, SP = rub.randomizer(CP, SP, 500)
 CP, SP = rub.rotateColumn(CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
+rub.PlotRubik(CP, SP)
 # Solve White Cross
 CP, SP = rub.SolveWhiteCross(CP, SP)
+rub.PlotRubik(CP, SP)
 # Solve White Corners
 CP, SP = rub.SolveWhiteCorners(CP, SP)
 # Solve Second Layer
