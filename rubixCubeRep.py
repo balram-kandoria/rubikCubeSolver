@@ -19,7 +19,7 @@ import time
 
 
 class RubikCube:
-    def __init__(self):  # constructor method
+    def __init__(self, fileName):  # constructor method
         # Define RGB Values
         self.Blue = '#00FFFF'
         self.Yellow = '#FFFF00'
@@ -27,6 +27,11 @@ class RubikCube:
         self.Green = '#006400'
         self.White = '#D3D3D3'
         self.Orange = '#f78707'
+
+        # Create a file to store solution
+        self.fileName = fileName
+        self.fid = open(self.fileName, 'w')
+
 
         # Define Corner Peices
         # Locations: x, z, y
@@ -517,8 +522,10 @@ class RubikCube:
 
         if ['C5', 'C6', 'C7', 'C8'] in CornerGrouping:
             print(f"Rotate Top Row {RotDirection}")
+            self.write_instructions("Top", RotDirection, False)
         else:
             print(f"Rotate Bottom Row {RotDirection}")
+            self.write_instructions("Bottom", RotDirection, False)
 
         return CP, SP
     # Rotate Both Sides and Corners
@@ -531,8 +538,10 @@ class RubikCube:
 
         if ['C1', 'C5', 'C8', 'C4'] in CornerGrouping:
             print(f"Rotate Left Column {RotDirection}")
+            self.write_instructions("Left", RotDirection, False)
         else:
             print(f"Rotate Right Column {RotDirection}")
+            self.write_instructions("Right", RotDirection, False)
 
         return CP, SP
 
@@ -810,8 +819,10 @@ class RubikCube:
 
         if ['C2', 'C1', 'C5', 'C6'] in corners:
             print(f"Rotate Front Face {direction}")
+            self.write_instructions("Front", direction, False)
         else:
             print(f"Rotate Back Face {direction}")
+            self.write_instructions("Back", direction, False)
 
         return CP, SP
 
@@ -2374,37 +2385,47 @@ class RubikCube:
         print('Yellow Corners Orientated')
         return CP, SP
 
+    def BeginnerAlgorithm(self, CP, SP):
 
-Countc = 0
-Counts = 0
-matches = 0
+        # Solve White Cross
+        CP, SP = self.SolveWhiteCross(CP, SP)
+        # Solve White Corners
+        CP, SP = self.SolveWhiteCorners(CP, SP)
+        # Solve Second Layer
+        CP, SP = self.SolveSecondLayer(CP, SP)
+        # Solve Yellow Cross
+        CP, SP = self.SolveYellowCross(CP, SP)
+        # Order Yellow Cross
+        CP, SP = self.OrderYellowCross(CP, SP)
+        # Solve Yellow Corners
+        CP, SP = self.SolveYellowCorners(CP, SP)
+        # Orientate Yellow Corners
+        CP, SP = self.OrientateYellowCorners(CP, SP)
+
+        self.write_instructions("null", "null", True)
+
+        return CP, SP
+
+    def write_instructions(self, Face, Direction, closeFlag):
+        if not closeFlag:
+            stringConstruct = Face + ", " + Direction + "\n"
+            self.fid.write(stringConstruct)
+        else:
+            self.fid.close()
+
 
 # Initialize
-rub = RubikCube()
+rub = RubikCube("Solution.txt")
 OrderedCube = rub.Rubik
 CP = rub.CornerPeices
 SP = rub.SidePeices
 
-fail = 0
-
 # Next Steps
-# CP, SP = rub.randomizer(CP, SP, 500)
-CP, SP = rub.rotateColumn(CP, rub.leftColumnC, SP, rub.leftColumnS, 'CCW')
+CP, SP = rub.randomizer(CP, SP, 500)
+
 rub.PlotRubik(CP, SP)
-# Solve White Cross
-CP, SP = rub.SolveWhiteCross(CP, SP)
-rub.PlotRubik(CP, SP)
-# Solve White Corners
-CP, SP = rub.SolveWhiteCorners(CP, SP)
-# Solve Second Layer
-CP, SP = rub.SolveSecondLayer(CP, SP)
-# Solve Yellow Cross
-CP, SP = rub.SolveYellowCross(CP, SP)
-# Order Yellow Cross
-CP, SP = rub.OrderYellowCross(CP, SP)
-# Solve Yellow Corners
-CP, SP = rub.SolveYellowCorners(CP, SP)
-# Orientate Yellow Corners
-CP, SP = rub.OrientateYellowCorners(CP, SP)
+
+CP, SP = rub.BeginnerAlgorithm(CP,SP)
+
 
 rub.PlotRubik(CP, SP)
