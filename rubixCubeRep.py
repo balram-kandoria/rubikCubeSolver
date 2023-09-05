@@ -2458,7 +2458,7 @@ class RubikCube:
 
 
 # Initialize
-rub = RubikCube("Solution.txt")
+rub = RubikCube("Solution/Solution.txt")
 OrderedCube = rub.Rubik
 CP = rub.CornerPeices
 SP = rub.SidePeices
