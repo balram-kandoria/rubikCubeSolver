@@ -520,12 +520,12 @@ class RubikCube:
         self.rotRowCorner(CP, CornerGrouping, RotDirection)
         self.rotRowSide(SP, SideGrouping, RotDirection)
 
-        if ['C5', 'C6', 'C7', 'C8'] in CornerGrouping:
-            print(f"Rotate Top Row {RotDirection}")
+        if ['C5', 'C6', 'C7', 'C8'] == CornerGrouping:
             self.write_instructions("Top", RotDirection, False)
+            print(f"Rotate Top Row {RotDirection}")
         else:
-            print(f"Rotate Bottom Row {RotDirection}")
             self.write_instructions("Bottom", RotDirection, False)
+            print(f"Rotate Bottom Row {RotDirection}")
 
         return CP, SP
     # Rotate Both Sides and Corners
@@ -536,12 +536,12 @@ class RubikCube:
         self.rotColSide(SP, SideGrouping, RotDirection)
         SP = self.sideQuirk(SP)
 
-        if ['C1', 'C5', 'C8', 'C4'] in CornerGrouping:
-            print(f"Rotate Left Column {RotDirection}")
+        if ['C1', 'C5', 'C8', 'C4'] == CornerGrouping:
             self.write_instructions("Left", RotDirection, False)
+            print(f"Rotate Left Column {RotDirection}")
         else:
-            print(f"Rotate Right Column {RotDirection}")
             self.write_instructions("Right", RotDirection, False)
+            print(f"Rotate Right Row {RotDirection}")
 
         return CP, SP
 
@@ -817,7 +817,7 @@ class RubikCube:
                         elif SP[Row][Color] == (1, 0, 0):
                             SP[Row][Color] = (0, 1, 0)
 
-        if ['C2', 'C1', 'C5', 'C6'] in corners:
+        if ['C2', 'C1', 'C5', 'C6'] == corners:
             print(f"Rotate Front Face {direction}")
             self.write_instructions("Front", direction, False)
         else:
@@ -2389,26 +2389,69 @@ class RubikCube:
 
         # Solve White Cross
         CP, SP = self.SolveWhiteCross(CP, SP)
+        # self.PlotRubik(CP, SP)
         # Solve White Corners
         CP, SP = self.SolveWhiteCorners(CP, SP)
-        # Solve Second Layer
+        # self.PlotRubik(CP, SP)
+        # # Solve Second Layer
         CP, SP = self.SolveSecondLayer(CP, SP)
-        # Solve Yellow Cross
+        # self.PlotRubik(CP, SP)
+        # # Solve Yellow Cross
         CP, SP = self.SolveYellowCross(CP, SP)
-        # Order Yellow Cross
+        # self.PlotRubik(CP, SP)
+        # # Order Yellow Cross
         CP, SP = self.OrderYellowCross(CP, SP)
-        # Solve Yellow Corners
+        # self.PlotRubik(CP, SP)
+        # # Solve Yellow Corners
         CP, SP = self.SolveYellowCorners(CP, SP)
-        # Orientate Yellow Corners
+        # self.PlotRubik(CP, SP)
+        # # Orientate Yellow Corners
         CP, SP = self.OrientateYellowCorners(CP, SP)
+        # self.PlotRubik(CP, SP)
 
         self.write_instructions("null", "null", True)
 
         return CP, SP
 
     def write_instructions(self, Face, Direction, closeFlag):
+        
+        def relativeDirection(Direction, standardAxisCompensation):
+
+            # standardAxisCompensation represents the direction, from the motors point of view wrt Global Axes, of ClockWise
+            # Ex: White Face motors need to spin CW, relatively, in order to spin CW in the Global Space
+            # The Yellow Face motors need to spin CCW, relatively, in order to spin CW in the Global Space
+
+            if Direction == standardAxisCompensation:
+                return "LOW" # True Clockwise
+            else:
+                return "HIGH" # True Counter-Clockwise
+            
+
+
+        motor = 0
         if not closeFlag:
-            stringConstruct = Face + ", " + Direction + "\n"
+            if Face == "Front":
+                motor = 1
+                pinControl = relativeDirection(Direction, 'CW')
+            elif Face == "Back":
+                motor = 2
+                pinControl = relativeDirection(Direction, 'CCW')
+            elif Face == "Right":
+                motor = 3
+                pinControl = relativeDirection(Direction, 'CW')
+            elif Face == "Left":
+                motor = 4
+                pinControl = relativeDirection(Direction, 'CCW')
+            elif Face == "Bottom":
+                motor = 5
+                pinControl = relativeDirection(Direction, 'CCW')
+            elif Face == "Top":
+                motor = 6
+                pinControl = relativeDirection(Direction, 'CW')
+            
+           
+            stringConstruct = "    delayMicroseconds(delayTime);" + "\n" + f"    MoveMotor(dirPin{motor}, stepPin{motor}, {pinControl});" + "\n"
+    
             self.fid.write(stringConstruct)
         else:
             self.fid.close()
@@ -2421,7 +2464,8 @@ CP = rub.CornerPeices
 SP = rub.SidePeices
 
 # Next Steps
-CP, SP = rub.randomizer(CP, SP, 500)
+# CP, SP = rub.randomizer(CP, SP, 500)
+CP, SP = rub.rotateRow(CP=CP, CornerGrouping=rub.topRowC, SP=SP, SideGrouping=rub.topRowS, RotDirection="CW")
 
 rub.PlotRubik(CP, SP)
 
