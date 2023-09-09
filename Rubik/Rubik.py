@@ -14,12 +14,23 @@ import numpy as np
 from mpl_toolkits.mplot3d import axes3d
 import random
 import time
+
+import sys
+sys.path.append("../Serial")
+from Teensy import Teensy
+sys.path.append("../Camera")
+from Camera import Camera
+
 'Axis is define with the white, orange, and green faces. Where the White is on the XY-Plane, Green is on the XZ-Plane, and orange is on the YZ-Plane (Assuming Positive Quadrant)'
 '(X,Y,Z)'
 
-
-class RubikCube:
+class RubikCube(Teensy, Camera):
     def __init__(self, fileName):  # constructor method
+
+        # Initialize External Hardware
+        super().__init__()
+        super(Teensy, self).__init__()
+
         # Define RGB Values
         self.Blue = '#00FFFF'
         self.Yellow = '#FFFF00'
@@ -176,7 +187,7 @@ class RubikCube:
         ax = fig.add_subplot(111, projection='3d')
         ax.set_autoscale_on(True)
         for faceColor in self.Rubik.keys():
-            # print(rub1[faceColor]['Location'])
+
             x, y, z = self.Rubik[faceColor]['Location']
             u, v, w = self.Rubik[faceColor]['Direction']
             setColor = self.SetColor(faceColor)
@@ -202,8 +213,8 @@ class RubikCube:
 
                 if cornerColor != 'Location':
                     # if Corner == 'C1':
-                    for CenterRefColor in rub.Rubik:
-                        if PlotCorner[Corner][cornerColor] == rub.Rubik[CenterRefColor]['Direction']:
+                    for CenterRefColor in self.Rubik:
+                        if PlotCorner[Corner][cornerColor] == self.Rubik[CenterRefColor]['Direction']:
 
                             xCFL, yCFL, zCFL = self.Rubik[CenterRefColor]['Location']
 
@@ -232,8 +243,8 @@ class RubikCube:
             for SideColor in PlotSide[Sides].keys():
 
                 if SideColor != 'Location':
-                    for CenterRefColor in rub.Rubik:
-                        if PlotSide[Sides][SideColor] == rub.Rubik[CenterRefColor]['Direction']:
+                    for CenterRefColor in self.Rubik:
+                        if PlotSide[Sides][SideColor] == self.Rubik[CenterRefColor]['Direction']:
 
                             xCFL, yCFL, zCFL = self.Rubik[CenterRefColor]['Location']
 
@@ -309,10 +320,10 @@ class RubikCube:
                     CP[rowCallOuts[i]
                        ]['Location'] = tempStore[i+1]
             # Adjust the Corner names to adhere to convention
-            # print('Before')
+
             # self.prettyPrint(CP)
             self.moveKeyBack(CP, rowCallOuts)
-            # print('After')
+
             # self.prettyPrint(CP)
             # Redefined the directions of the newly rotated faces
             for Row in rowCallOuts:
@@ -420,10 +431,10 @@ class RubikCube:
                     CP[colCallOuts[i]
                        ]['Location'] = tempStore[i+1]
             # Adjust the Corner names to adhere to convention
-            # print('Before')
+
             # self.prettyPrint(CP)
             self.moveKeyForward(CP, colCallOuts)
-            # print('After')
+
             # self.prettyPrint(CP)
             # Redefined the directions of the newly rotated faces
             for Col in colCallOuts:
@@ -522,10 +533,8 @@ class RubikCube:
 
         if ['C5', 'C6', 'C7', 'C8'] == CornerGrouping:
             self.write_instructions("Top", RotDirection, False)
-            print(f"Rotate Top Row {RotDirection}")
         else:
             self.write_instructions("Bottom", RotDirection, False)
-            print(f"Rotate Bottom Row {RotDirection}")
 
         return CP, SP
     # Rotate Both Sides and Corners
@@ -538,10 +547,8 @@ class RubikCube:
 
         if ['C1', 'C5', 'C8', 'C4'] == CornerGrouping:
             self.write_instructions("Left", RotDirection, False)
-            print(f"Rotate Left Column {RotDirection}")
         else:
             self.write_instructions("Right", RotDirection, False)
-            print(f"Rotate Right Row {RotDirection}")
 
         return CP, SP
 
@@ -605,8 +612,7 @@ class RubikCube:
         for i in range(Turns):
             RubikPortion = random.choice(Squares)
             RubikDirection = random.choice(Direction)
-            # print(RubikPortion)
-            # print(RubikDirection)
+
             if RubikPortion == 'Top':
                 CP, SP = self.rotateRow(CP, self.topRowC, SP,
                                         self.topRowS, RubikDirection)
@@ -629,7 +635,7 @@ class RubikCube:
             time.sleep(0)
 
             if CP['C1']['Location'] != (0, 0, 0) and check:
-                # print(i)
+
                 check = False
         return CP, SP
 
@@ -648,11 +654,10 @@ class RubikCube:
                     CP[faceCallOuts[i]
                        ]['Location'] = tempStore[i+1]
             # Adjust the Corner names to adhere to convention
-            # print('Before')
-            # self.prettyPrint(CP)
+
+
             self.moveKeyBack(CP, faceCallOuts)
-            # print('After')
-            # self.prettyPrint(CP)
+
             # Redefined the directions of the newly rotated faces
             for Row in faceCallOuts:
                 for Color in CP[Row]:
@@ -750,12 +755,12 @@ class RubikCube:
             SP = self.moveKeyBack(SP, sides)
 
         for i in corners:
-            # print(i)
+
             if i == 'C1':
                 CP[i]['Location'] = (0, 0, 0)
             if i == 'C2':
                 CP[i]['Location'] = (2, 0, 0)
-                # print(CP[i]['Location'])
+
             if i == 'C3':
                 CP[i]['Location'] = (2, 2, 0)
             if i == 'C4':
@@ -818,16 +823,17 @@ class RubikCube:
                             SP[Row][Color] = (0, 1, 0)
 
         if ['C2', 'C1', 'C5', 'C6'] == corners:
-            print(f"Rotate Front Face {direction}")
+            
             self.write_instructions("Front", direction, False)
+            
         else:
-            print(f"Rotate Back Face {direction}")
             self.write_instructions("Back", direction, False)
+
 
         return CP, SP
 
     def unmixer(self, SP):
-        # print(SP)
+
         temp = {}
         for Side in SP:
             if SP[Side]['Location'] == (1, 0, 0):
@@ -1081,7 +1087,7 @@ class RubikCube:
                 CP, SP = self.rotateColumn(
                     CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
                 CP, SP = self.rotateRow(
-                    CP, self.bottomRowC, SP, rub.bottomRowS, 'CW')
+                    CP, self.bottomRowC, SP, self.bottomRowS, 'CW')
         return CP, SP
 
     def SolveWhiteCross(self, CP, SP):
@@ -1105,15 +1111,15 @@ class RubikCube:
                         if not ran:
                             if (abs(SP[spKeys[i]][spSpecificKeys[j]][0]) == 1 or abs(SP[spKeys[i]][spSpecificKeys[j]][1]) == 1) or (SP[spKeys[i]][spSpecificKeys[j]] == (0, 0, 1)):
                                 ran = True
-                                # print('White on either the x or y faces')
+
 
                                 # Get the index of the other color
                                 if j == 2:
-                                    # print(spSpecificKeys[1])
+
                                     otherColorIndex = 1
                                     whiteColorIndex = 2
                                 else:
-                                    # print(spSpecificKeys[2])
+
                                     otherColorIndex = 2
                                     whiteColorIndex = 1
 
@@ -1122,24 +1128,13 @@ class RubikCube:
                                 whitePeiceLocation = SP[spKeys[i]
                                                         ][spSpecificKeys[whiteColorIndex]]
                                 currentCenter = self.Rubik[spSpecificKeys[otherColorIndex]]['Direction']
-                                # print(
-                                # f"Color Peice Direction: {sidePeiceLocation}")
-                                # print(
-                                # f"Current Center Direction: {currentCenter}")
-                                # print(
-                                # f"White Peice Direction: {whitePeiceLocation}")
+
 
                                 if (SP[spKeys[i]][spSpecificKeys[j]][0]) == 1:
-                                    # print('Flipping Pos X side piece')
+
                                     frontface, backface, toprow, bottomrow, rightcolumn, leftcolumn = self.rowColumnFaceS(
                                         spKeys[i])
-                                    # print(frontface)
-                                    # print(backface)
-                                    # print(toprow)
-                                    # print(bottomrow)
-                                    # print(rightcolumn)
-                                    # print(leftcolumn)
-                                    # print(spSpecificKeys[j])
+
                                     if toprow:
                                         CP, SP = self.rotateColumn(
                                             CP, self.rightColumnC, SP, self.rightColumnS, 'CW')
@@ -1184,16 +1179,10 @@ class RubikCube:
                                         break
 
                                 elif (SP[spKeys[i]][spSpecificKeys[j]][0]) == -1:
-                                    # print('Flipping Neg X side piece')
+
                                     frontface, backface, toprow, bottomrow, rightcolumn, leftcolumn = self.rowColumnFaceS(
                                         spKeys[i])
-                                    # print(frontface)
-                                    # print(backface)
-                                    # print(toprow)
-                                    # print(bottomrow)
-                                    # print(rightcolumn)
-                                    # print(leftcolumn)
-                                    # print(spSpecificKeys[j])
+
                                     if toprow:
                                         CP, SP = self.rotateColumn(
                                             CP, self.leftColumnC, SP, self.leftColumnS, 'CW')
@@ -1235,16 +1224,10 @@ class RubikCube:
                                         break
 
                                 elif (SP[spKeys[i]][spSpecificKeys[j]][1]) == 1:
-                                    # print('Flipping Pos Y side piece')
+
                                     frontface, backface, toprow, bottomrow, rightcolumn, leftcolumn = self.rowColumnFaceS(
                                         spKeys[i])
-                                    # print(frontface)
-                                    # print(backface)
-                                    # print(toprow)
-                                    # print(bottomrow)
-                                    # print(rightcolumn)
-                                    # print(leftcolumn)
-                                    # print(spSpecificKeys[j])
+
                                     if leftcolumn:
                                         CP, SP = self.rotateRow(
                                             CP, self.topRowC, SP, self.topRowS, 'CW')
@@ -1286,16 +1269,10 @@ class RubikCube:
                                         break
 
                                 elif (SP[spKeys[i]][spSpecificKeys[j]][1]) == -1:
-                                    # print('Flipping Neg Y side piece')
+
                                     frontface, backface, toprow, bottomrow, rightcolumn, leftcolumn = self.rowColumnFaceS(
                                         spKeys[i])
-                                    # print(frontface)
-                                    # print(backface)
-                                    # print(toprow)
-                                    # print(bottomrow)
-                                    # print(rightcolumn)
-                                    # print(leftcolumn)
-                                    # print(spSpecificKeys[j])
+
                                     if leftcolumn:
                                         CP, SP = self.rotateRow(
                                             CP, self.bottomRowC, SP, self.bottomRowS, 'CW')
@@ -1341,15 +1318,7 @@ class RubikCube:
 
                                     frontface, backface, toprow, bottomrow, rightcolumn, leftcolumn = self.rowColumnFaceS(
                                         spKeys[i])
-                                    # print(frontface)
-                                    # print(backface)
-                                    # print(toprow)
-                                    # print(bottomrow)
-                                    # print(rightcolumn)
-                                    # print(leftcolumn)
 
-                                    # print(spSpecificKeys[j])
-                                    # print('Flipping Neg Y side piece')
 
                                     if toprow:
                                         if spSpecificKeys[otherColorIndex] != 'Blue':
@@ -1388,20 +1357,18 @@ class RubikCube:
             except:
                 continue
 
-        # print(f"The Cube Could not be Solved {fail} times")
-        # print(f"The Cube was Solved {solve} times")
         return CP, SP
 
     def WonYFace(self, CP, SP,  i, j, spSpecificKeys, spKeys):
-        # print('White on the yellow face')
+
 
         # Get the index of the other color
         if j == 2:
-            # print(spSpecificKeys[1])
+
             otherColorIndex = 1
             whiteColorIndex = 2
         else:
-            # print(spSpecificKeys[2])
+
             otherColorIndex = 2
             whiteColorIndex = 1
 
@@ -1416,77 +1383,31 @@ class RubikCube:
                     CP, self.topRowC, SP, self.topRowS, 'CCW')
                 CP, SP = self.rotateRow(
                     CP, self.topRowC, SP, self.topRowS, 'CCW')
-                # print(
-                # f'Matched Top Row: {spSpecificKeys[otherColorIndex]}')
+
 
             elif currentCenter[1] == -1:
                 CP, SP = self.rotateRow(
                     CP, self.bottomRowC, SP, self.bottomRowS, 'CCW')
                 CP, SP = self.rotateRow(
                     CP, self.bottomRowC, SP, self.bottomRowS, 'CCW')
-                # print(
-                # f'Matched Bottom Row: {spSpecificKeys[otherColorIndex]}')
+
 
             elif currentCenter[0] == 1:
                 CP, SP = self.rotateColumn(
                     CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
                 CP, SP = self.rotateColumn(
                     CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
-                # print(
-                # f'Matched Right Column: {spSpecificKeys[otherColorIndex]}')
+
 
             elif currentCenter[0] == -1:
                 CP, SP = self.rotateColumn(
                     CP, self.leftColumnC, SP, self.leftColumnS, 'CCW')
                 CP, SP = self.rotateColumn(
                     CP, self.leftColumnC, SP, self.leftColumnS, 'CCW')
-                # print(
-                # f'Matched Left Column: {spSpecificKeys[otherColorIndex]}')
+
 
         else:
-            # if abs(sidePeiceLocation[0]) == abs(currentCenter[0]) and abs(sidePeiceLocation[1]) == abs(currentCenter[1]) and abs(sidePeiceLocation[2]) == abs(currentCenter[2]):
-            #     # if the corresponding center is on the opposite face rotate twice
-            #     CP, SP = self.rotateFace(
-            #         CP, self.backFaceC, SP, self.backFaceS, 'CCW')
-            #     CP, SP = self.rotateFace(
-            #         CP, self.backFaceC, SP, self.backFaceS, 'CCW')
 
-            #     if currentCenter[1] == 1:
-            #         CP, SP = self.rotateRow(
-            #             CP, self.topRowC, SP, self.topRowS, 'CCW')
-            #         CP, SP = self.rotateRow(
-            #             CP, self.topRowC, SP, self.topRowS, 'CCW')
-            #         print(
-            #             f'Matched Top Row: {spSpecificKeys[otherColorIndex]}')
-
-            #     elif currentCenter[1] == -1:
-            #         CP, SP = self.rotateRow(
-            #             CP, self.bottomRowC, SP, self.bottomRowS, 'CCW')
-            #         CP, SP = self.rotateRow(
-            #             CP, self.bottomRowC, SP, self.bottomRowS, 'CCW')
-            #         print(
-            #             f'Matched Bottom Row: {spSpecificKeys[otherColorIndex]}')
-
-            #     elif currentCenter[0] == 1:
-            #         CP, SP = self.rotateColumn(CP, self.rightColumnC, SP,
-            #                                   self.rightColumnS, 'CCW')
-            #         CP, SP = self.rotateColumn(CP, self.rightColumnC, SP,
-            #                                   self.rightColumnS, 'CCW')
-            #         print(
-            #             f'Matched Right Column: {spSpecificKeys[otherColorIndex]}')
-
-            #     elif currentCenter[0] == -1:
-            #         CP, SP = self.rotateColumn(CP, self.leftColumnC, SP,
-            #                                   self.leftColumnS, 'CCW')
-            #         CP, SP = self.rotateColumn(CP, self.leftColumnC, SP,
-            #                                   self.leftColumnS, 'CCW')
-            #         print(
-            #             f'Matched Left Column: {spSpecificKeys[otherColorIndex]}')
-
-            # else:
-
-            # rotate white side peice on yellow face until the other color matches the center color
-            # print('Rotating until face matches')
             matched = False
             sidePeiceRotating = spKeys[i]
             while not matched:
@@ -1514,29 +1435,25 @@ class RubikCube:
                                         self.topRowS, 'CCW')
                 CP, SP = self.rotateRow(CP, self.topRowC, SP,
                                         self.topRowS, 'CCW')
-                # print(
-                # f'Matched Top Row: {spSpecificKeys[otherColorIndex]}')
+
             elif currentCenter[1] == -1:
                 CP, SP = self.rotateRow(CP, self.bottomRowC, SP,
                                         self.bottomRowS, 'CCW')
                 CP, SP = self.rotateRow(CP, self.bottomRowC, SP,
                                         self.bottomRowS, 'CCW')
-                # print(
-                # f'Matched Bottom Row: {spSpecificKeys[otherColorIndex]}')
+
             elif currentCenter[0] == 1:
                 CP, SP = self.rotateColumn(CP, self.rightColumnC, SP,
                                            self.rightColumnS, 'CCW')
                 CP, SP = self.rotateColumn(CP, self.rightColumnC, SP,
                                            self.rightColumnS, 'CCW')
-                # print(
-                # f'Matched Right Column: {spSpecificKeys[otherColorIndex]}')
+
             elif currentCenter[0] == -1:
                 CP, SP = self.rotateColumn(CP, self.leftColumnC, SP,
                                            self.leftColumnS, 'CCW')
                 CP, SP = self.rotateColumn(CP, self.leftColumnC, SP,
                                            self.leftColumnS, 'CCW')
-                # print(
-                # f'Matched Left Column: {spSpecificKeys[otherColorIndex]}')
+
 
         return CP, SP
 
@@ -1597,15 +1514,13 @@ class RubikCube:
             for i in range(len(cpKeys)):
                 orientationCount = 0
                 colorKeys = list(CP[cpKeys[i]].keys())
-                # print(f"Current Corner is {cpKeys[i]}")
+
                 orgDictColors = list(self.CornerDict[cpKeys[i]].keys())
 
-                # print(f"Corner Colors should be: {orgDictColors}")
-                # print(f"Current Colors are: {colorKeys}")
 
                 # If Corner exists with all the correct color but not necessarily in the right orientation
                 if (colorKeys[1] in orgDictColors) and (colorKeys[2] in orgDictColors) and (colorKeys[3] in orgDictColors):
-                    # print('Correct Position but Incorrect Orientation')
+
                     # Check Orientation and Turn Corner
                     correctOrientation = 0
                     while correctOrientation != 4:
@@ -1620,7 +1535,7 @@ class RubikCube:
                             CP, SP = self.RightHandRule(CP, SP, cpKeys[i])
                             CP, SP = self.RightHandRule(CP, SP, cpKeys[i])
                 else:
-                    # print('Peice stuck')
+
                     if cpKeys[i] == 'C1':
                         CP, SP = self.rotateColumn(
                             CP, self.leftColumnC, SP, self.leftColumnS, 'CCW')
@@ -1655,18 +1570,12 @@ class RubikCube:
                     SpecifiedCornerColor = list(
                         self.CornerDict[cpKeys[i]].keys())
                     if (SpecifiedCornerColor[1] in backFaceColors) and (SpecifiedCornerColor[2] in backFaceColors) and (SpecifiedCornerColor[3] in backFaceColors):
-                        # print('Corner peice on the back face')
-                        # rub.PlotRubik(CP, SP)
-                        # print(True)
-                        # print(otherCPKeys[j])
-                        # print(backFaceColors)
-                        # print()
+
                         if otherCPKeys[j] != otherCPKeys[i]:
-                            # print('Rot')
 
                             match = False
                             tempLocation = j
-                            # print('1')
+
                             while not match:
                                 CP, SP = self.rotateFace(
                                     CP, self.backFaceC, SP, self.backFaceS, 'CW')
@@ -1686,7 +1595,7 @@ class RubikCube:
                 checkCount = 0
                 for m in range(len(cpKeys)):
                     colorKeys = list(CP[cpKeys[m]].keys())
-                    orgDictColors = list(rub.CornerDict[cpKeys[m]].keys())
+                    orgDictColors = list(self.CornerDict[cpKeys[m]].keys())
                     if (colorKeys[1] in orgDictColors) and (colorKeys[2] in orgDictColors) and (colorKeys[3] in orgDictColors):
                         if CP[cpKeys[m]]['White'][2] == 1:
                             checkCount += 1
@@ -1702,7 +1611,6 @@ class RubikCube:
         sideKeys = ['S2', 'S4', 'S9', 'S11']
         backKeys = ['S3', 'S7', 'S12', 'S8']
         SecondLayerSolved = False
-        # rub.PlotRubik(CP, SP)
 
         attempt = 0
 
@@ -1710,12 +1618,11 @@ class RubikCube:
             attempt += 1
             for i in range(len(sideKeys)):
 
-                # print(SP[sideKeys[i]])
+
                 sideKeysList = list(SP[sideKeys[i]])
                 # Check if side peice is not in the correct position
                 if (self.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[i]][sideKeysList[1]]) or (self.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[i]][sideKeysList[2]]):
                     # Check the back face for the correct peice
-                    # print(self.SideDict[sideKeys[i]].keys())
 
                     sideDictKeys = list(self.SideDict[sideKeys[i]].keys())
                     for j in range(len(backKeys)):
@@ -1724,37 +1631,24 @@ class RubikCube:
                         backpeiceList = list(SP[backKeys[j]])
                         if (sideDictKeys[1] == backpeiceList[1]) and (sideDictKeys[2] == backpeiceList[2]):
                             applicableBackPeice = True
-                            # print(backpeiceList)
-                            # print('True')
+
                             # Find the color adjacent to the back face
                             adjacentPeice = 0
                             for k in range(len(backpeiceList)):
                                 if backpeiceList[k] != 'Location':
                                     if SP[backKeys[j]][backpeiceList[k]][2] != -1:
-                                        # print(SP[backKeys[j]][backpeiceList[k]])
-                                        # print(backpeiceList[k])
+
                                         adjacentPeice = k
                                         if k == 1:
                                             backpeice = 2
                                         else:
                                             backpeice = 1
 
-                            # print(backpeiceList[adjacentPeice])
-                            # if adjacentPeice != 0:
-                            # print(SP[backKeys[j]][backpeiceList[adjacentPeice]])
-                            # print(backpeiceList[adjacentPeice])
-                            # print(self.Rubik[backpeiceList[adjacentPeice]]['Direction'])
 
                             if self.Rubik[backpeiceList[adjacentPeice]]['Direction'] != SP[backKeys[j]][backpeiceList[adjacentPeice]]:
-                                # print('1')
                                 tempLoc = j
                                 while not matched:
 
-                                    # print(SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]])
-                                    # print(SP[backKeys[tempLoc]])
-                                    # print(backKeys[tempLoc])
-                                    # print(tempLoc)
-                                    # Rotate Backface
                                     CP, SP = self.rotateFace(
                                         CP, self.backFaceC, SP, self.backFaceS, 'CW')
 
@@ -1763,18 +1657,10 @@ class RubikCube:
                                     if tempLoc == -1:
                                         tempLoc = len(backKeys)-1
 
-                                    # print()
-                                    # print(SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]])
-                                    # print(SP[backKeys[tempLoc]])
-                                    # print(backKeys[tempLoc])
-                                    # print(tempLoc)
 
-                                    # backpeiceList = list(SP[backKeys[tempLoc]])
                                     if SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]] == self.Rubik[backpeiceList[adjacentPeice]]['Direction']:
-                                        # print('Matched')
+
                                         matched = True
-                                        # print(
-                                        #     self.Rubik[backpeiceList[backpeice]]['Direction'])
 
                                         destinationFaceX = -1 * \
                                             self.Rubik[backpeiceList[backpeice]
@@ -1801,11 +1687,11 @@ class RubikCube:
 
                                             if SP[backKeys[tempLoc]][backpeiceList[adjacentPeice]] == destinationFace:
                                                 destinationMatch = True
-                                                # print('Matched to Destination Face')
+
 
                                         CP, SP = self.leftAndRightHandRuleSides(
                                             CP, SP, sideKeys, i, backpeiceList, backpeice)
-                                # self.PlotRubik(CP, SP)
+
                                 break
                             else:
                                 CP, SP = self.leftAndRightHandRuleSides(
@@ -1813,23 +1699,13 @@ class RubikCube:
 
                     if not applicableBackPeice:
 
-                        # print('Before')
-                        # self.PlotRubik(CP, SP)
-
-                        # backpeiceList = list(SP[backKeys[j]])
 
                         CP, SP = self.leftAndRightHandRuleSides(
                             CP, SP, sideKeys, i, sideDictKeys, 1)
 
-                        # print('After')
-                        # self.PlotRubik(CP, SP)
-
-                    # print(f"Appliable Back Peice: {applicableBackPeice}")
-                    # print(backpeice)
-
             matchCount = 0
             for m in range(len(sideKeys)):
-                # print(SP[sideKeys[i]])
+
                 sideKeysList = list(SP[sideKeys[m]])
                 # Check if side peice is not in the correct position
                 if (self.Rubik[sideKeysList[1]]['Direction'] != SP[sideKeys[m]][sideKeysList[1]]) or (self.Rubik[sideKeysList[2]]['Direction'] != SP[sideKeys[m]][sideKeysList[2]]):
@@ -1847,13 +1723,11 @@ class RubikCube:
         frontface, backface, toprow, bottomrow, rightcolumn, leftcolumn = self.rowColumnFaceS(
             sideKeys[i])
 
-        # print(backpeiceList[backpeice])
-
         if backpeiceList[backpeice] == 'Orange':
 
-            # print('Left Column')
+
             if toprow:
-                # print('S9: Left')
+
                 # Left Column
                 CP, SP = self.rotateColumn(
                     CP, self.leftColumnC, SP, self.leftColumnS, 'CW')
@@ -1874,7 +1748,6 @@ class RubikCube:
                 CP, SP = self.rotateFace(
                     CP, self.backFaceC, SP, self.backFaceS, 'CW')
             else:
-                # print('S4: Right')
                 # Left Column
                 CP, SP = self.rotateColumn(
                     CP, self.leftColumnC, SP, self.leftColumnS, 'CCW')
@@ -1895,9 +1768,9 @@ class RubikCube:
                 CP, SP = self.rotateFace(
                     CP, self.backFaceC, SP, self.backFaceS, 'CCW')
         elif backpeiceList[backpeice] == 'Red':
-            # print('Right Column')
+
             if toprow:
-                # print('S11: Right')
+
                 CP, SP = self.rotateColumn(
                     CP, self.rightColumnC, SP, self.rightColumnS, 'CW')
                 CP, SP = self.rotateFace(
@@ -1917,7 +1790,7 @@ class RubikCube:
                 CP, SP = self.rotateFace(
                     CP, self.backFaceC, SP, self.backFaceS, 'CCW')
             else:
-                # print('S2: Left')
+
                 CP, SP = self.rotateColumn(
                     CP, self.rightColumnC, SP, self.rightColumnS, 'CCW')
                 CP, SP = self.rotateFace(
@@ -1937,9 +1810,9 @@ class RubikCube:
                 CP, SP = self.rotateFace(
                     CP, self.backFaceC, SP, self.backFaceS, 'CW')
         elif backpeiceList[backpeice] == 'Blue':
-            # print('Top Row')
+
             if rightcolumn:
-                # print('S11: Left')
+
                 # Top Row
                 CP, SP = self.rotateRow(
                     CP, self.topRowC, SP, self.topRowS, 'CCW')
@@ -1960,7 +1833,7 @@ class RubikCube:
                 CP, SP = self.rotateFace(
                     CP, self.backFaceC, SP, self.backFaceS, 'CW')
             else:
-                # print('S9: Right')
+
                 # Top Row
                 CP, SP = self.rotateRow(
                     CP, self.topRowC, SP, self.topRowS, 'CW')
@@ -1981,9 +1854,9 @@ class RubikCube:
                 CP, SP = self.rotateFace(
                     CP, self.backFaceC, SP, self.backFaceS, 'CCW')
         elif backpeiceList[backpeice] == 'Green':
-            # print('Bottom Row')
+
             if rightcolumn:
-                # print('S2: : Right')
+
                 # Bottom Row
                 CP, SP = self.rotateRow(
                     CP, self.bottomRowC, SP, self.bottomRowS, 'CCW')
@@ -2005,7 +1878,7 @@ class RubikCube:
                     CP, self.backFaceC, SP, self.backFaceS, 'CCW')
 
             else:
-                # print('S4: Left')
+
                 # Bottom Row
                 CP, SP = self.rotateRow(
                     CP, self.bottomRowC, SP, self.bottomRowS, 'CW')
@@ -2024,7 +1897,7 @@ class RubikCube:
                 CP, SP = self.rotateColumn(
                     CP, self.leftColumnC, SP, self.leftColumnS, 'CW')
                 CP, SP = self.rotateFace(
-                    CP, self.backFaceC, SP, rub.backFaceS, 'CW')
+                    CP, self.backFaceC, SP, self.backFaceS, 'CW')
 
         return CP, SP
 
@@ -2057,7 +1930,7 @@ class RubikCube:
                         # Case 2: L Shape
                         if 'Yellow' in forwardList:
                             if SP[sides[forwardAdjacent]]['Yellow'] == (0, 0, -1):
-                                # print('L spotted')
+
                                 forwardDirection = SP[sides[forwardAdjacent]
                                                       ][forwardList[2]]
                                 currentDirection = SP[sides[i]][oneSideList[2]]
@@ -2089,7 +1962,7 @@ class RubikCube:
                                 #   Ensure Line is Going from Red-Orange
                                 if not (sides[i] == 'S7' or sides[i] == 'S8'):
                                     LineVert = True
-                                    # print('Rotate Line')
+
 
             if noYcount == 4:
                 YellowCross = True
@@ -2138,7 +2011,7 @@ class RubikCube:
 
                 MatchCount = 0
                 for i in range(len(sidePeices)):
-                    # print(SP[sidePeices[i]])
+
                     currentPeiceKeys = list(SP[sidePeices[i]].keys())
                     adjacent_index = i + 1
                     if adjacent_index == 4:
@@ -2261,10 +2134,8 @@ class RubikCube:
             iteration = 0
             for i in range(len(backCorners)):
                 actualCorner = list(CP[backCorners[i]].keys())
-                TheoCorner = list(rub.CornerDict[backCorners[i]].keys())
+                TheoCorner = list(self.CornerDict[backCorners[i]].keys())
 
-                # print(f"Actual Keys: {actualCorner[1:len(actualCorner)]}")
-                # print(f"Theoretical Keys: {TheoCorner[1:len(TheoCorner)]}")
 
                 if actualCorner == TheoCorner:
                     matchCount += 1
@@ -2422,33 +2293,35 @@ class RubikCube:
             # The Yellow Face motors need to spin CCW, relatively, in order to spin CW in the Global Space
 
             if Direction == standardAxisCompensation:
-                return "LOW" # True Clockwise
+                return '0' # True Clockwise LOW
             else:
-                return "HIGH" # True Counter-Clockwise
+                return '1' # True Counter-Clockwise HIGH
             
 
 
         motor = 0
         if not closeFlag:
             if Face == "Front":
-                motor = 1
+                motor = "001"
                 pinControl = relativeDirection(Direction, 'CW')
+                
             elif Face == "Back":
-                motor = 2
+                motor = "010"
                 pinControl = relativeDirection(Direction, 'CCW')
             elif Face == "Right":
-                motor = 3
+                motor = "011"
                 pinControl = relativeDirection(Direction, 'CW')
             elif Face == "Left":
-                motor = 4
+                motor = "100"
                 pinControl = relativeDirection(Direction, 'CCW')
             elif Face == "Bottom":
-                motor = 5
+                motor = "101"
                 pinControl = relativeDirection(Direction, 'CCW')
             elif Face == "Top":
-                motor = 6
+                motor = "110"
                 pinControl = relativeDirection(Direction, 'CW')
             
+            self.aggregateCommands(motor+pinControl)
            
             stringConstruct = "    delayMicroseconds(delayTime);" + "\n" + f"    MoveMotor(dirPin{motor}, stepPin{motor}, {pinControl});" + "\n"
     
@@ -2456,20 +2329,3 @@ class RubikCube:
         else:
             self.fid.close()
 
-
-# Initialize
-rub = RubikCube("Solution/Solution.txt")
-OrderedCube = rub.Rubik
-CP = rub.CornerPeices
-SP = rub.SidePeices
-
-# Next Steps
-# CP, SP = rub.randomizer(CP, SP, 500)
-CP, SP = rub.rotateRow(CP=CP, CornerGrouping=rub.topRowC, SP=SP, SideGrouping=rub.topRowS, RotDirection="CW")
-
-rub.PlotRubik(CP, SP)
-
-CP, SP = rub.BeginnerAlgorithm(CP,SP)
-
-
-rub.PlotRubik(CP, SP)
