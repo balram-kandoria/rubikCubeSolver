@@ -3,11 +3,11 @@ import time
 
 class Teensy():
     def __init__(self):
-        self.board = '/dev/ttyACM0'
+        self.board = '/dev/ttyAMA0'
         self.baud = 9600
         self.commands = []
         print("=====================Teensy Init===================================")
-        print(f"Teensy board {self.board} has been initiated. See /dev/ttyACM0 on arduino IDE for board details")
+        print(f"Teensy board {self.board} has been initiated. See {self.board} on arduino IDE for board details")
         print(f"Baud Rate: {self.baud} bits per second")
         print("===================================================================")
     
@@ -17,12 +17,12 @@ class Teensy():
 
     def sendCommands(self):
         '''Send Commands to the Teensy using Serial Communication'''
-        ser = serial.Serial('/dev/ttyACM0', self.baud, timeout=1)
+        ser = serial.Serial(self.board, self.baud, timeout=1)
         ser.reset_input_buffer()
 
         for i in range(len(self.commands)):
             specificCommand = self.commands[i]
-            ser.write(specificCommand)
+            ser.write(bytes(specificCommand, 'utf-8'))
             line = ser.readline().decode('utf-8').rstrip()
             print(line)
             time.sleep(1)
