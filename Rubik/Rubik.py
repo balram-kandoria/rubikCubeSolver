@@ -2262,22 +2262,22 @@ class RubikCube(Teensy, Camera):
         CP, SP = self.SolveWhiteCross(CP, SP)
         # self.PlotRubik(CP, SP)
         # Solve White Corners
-        CP, SP = self.SolveWhiteCorners(CP, SP)
+        # CP, SP = self.SolveWhiteCorners(CP, SP)
         # self.PlotRubik(CP, SP)
         # # Solve Second Layer
-        CP, SP = self.SolveSecondLayer(CP, SP)
+        # CP, SP = self.SolveSecondLayer(CP, SP)
         # self.PlotRubik(CP, SP)
         # # Solve Yellow Cross
-        CP, SP = self.SolveYellowCross(CP, SP)
+        # CP, SP = self.SolveYellowCross(CP, SP)
         # self.PlotRubik(CP, SP)
         # # Order Yellow Cross
-        CP, SP = self.OrderYellowCross(CP, SP)
+        # CP, SP = self.OrderYellowCross(CP, SP)
         # self.PlotRubik(CP, SP)
         # # Solve Yellow Corners
-        CP, SP = self.SolveYellowCorners(CP, SP)
+        # CP, SP = self.SolveYellowCorners(CP, SP)
         # self.PlotRubik(CP, SP)
         # # Orientate Yellow Corners
-        CP, SP = self.OrientateYellowCorners(CP, SP)
+        # CP, SP = self.OrientateYellowCorners(CP, SP)
         # self.PlotRubik(CP, SP)
 
         self.write_instructions("null", "null", True)
@@ -2293,32 +2293,32 @@ class RubikCube(Teensy, Camera):
             # The Yellow Face motors need to spin CCW, relatively, in order to spin CW in the Global Space
 
             if Direction == standardAxisCompensation:
-                return '0' # True Clockwise LOW
+                return 0 # True Clockwise LOW
             else:
-                return '1' # True Counter-Clockwise HIGH
+                return 1 # True Counter-Clockwise HIGH
             
 
 
         motor = 0
         if not closeFlag:
-            if Face == "Front":
-                motor = "001"
+            if Face == "Front": # 1/2
+                motor = 1
                 pinControl = relativeDirection(Direction, 'CW')
                 
-            elif Face == "Back":
-                motor = "010"
+            elif Face == "Back": # 3/4
+                motor = 3
                 pinControl = relativeDirection(Direction, 'CCW')
-            elif Face == "Right":
-                motor = "011"
+            elif Face == "Right": # 5/6
+                motor = 5
                 pinControl = relativeDirection(Direction, 'CW')
-            elif Face == "Left":
-                motor = "100"
+            elif Face == "Left": # 7/8
+                motor = 7
                 pinControl = relativeDirection(Direction, 'CCW')
-            elif Face == "Bottom":
-                motor = "101"
+            elif Face == "Bottom": # 9/10
+                motor = 9
                 pinControl = relativeDirection(Direction, 'CCW')
-            elif Face == "Top":
-                motor = "110"
+            elif Face == "Top": # 11/12
+                motor = 11
                 pinControl = relativeDirection(Direction, 'CW')
             
             self.aggregateCommands(motor+pinControl)

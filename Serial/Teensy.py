@@ -3,8 +3,8 @@ import time
 
 class Teensy():
     def __init__(self):
-        self.board = '/dev/ttyAMA0'
-        self.baud = 9600
+        self.board = '/dev/ttyACM0'
+        self.baud = 115200
         self.commands = []
         print("=====================Teensy Init===================================")
         print(f"Teensy board {self.board} has been initiated. See {self.board} on arduino IDE for board details")
@@ -22,7 +22,7 @@ class Teensy():
 
         for i in range(len(self.commands)):
             specificCommand = self.commands[i]
-            ser.write(bytes(specificCommand, 'utf-8'))
+            ser.write(bytes(str(specificCommand),'utf-8'))
             line = ser.readline().decode('utf-8').rstrip()
             print(line)
             time.sleep(1)
