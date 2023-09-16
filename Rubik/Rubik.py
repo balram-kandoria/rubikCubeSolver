@@ -2260,25 +2260,25 @@ class RubikCube(Teensy, Camera):
 
         # Solve White Cross
         CP, SP = self.SolveWhiteCross(CP, SP)
-        # self.PlotRubik(CP, SP)
+        self.PlotRubik(CP, SP)
         # Solve White Corners
-        # CP, SP = self.SolveWhiteCorners(CP, SP)
-        # self.PlotRubik(CP, SP)
-        # # Solve Second Layer
-        # CP, SP = self.SolveSecondLayer(CP, SP)
-        # self.PlotRubik(CP, SP)
-        # # Solve Yellow Cross
-        # CP, SP = self.SolveYellowCross(CP, SP)
-        # self.PlotRubik(CP, SP)
-        # # Order Yellow Cross
-        # CP, SP = self.OrderYellowCross(CP, SP)
-        # self.PlotRubik(CP, SP)
-        # # Solve Yellow Corners
-        # CP, SP = self.SolveYellowCorners(CP, SP)
-        # self.PlotRubik(CP, SP)
-        # # Orientate Yellow Corners
-        # CP, SP = self.OrientateYellowCorners(CP, SP)
-        # self.PlotRubik(CP, SP)
+        CP, SP = self.SolveWhiteCorners(CP, SP)
+        self.PlotRubik(CP, SP)
+        # Solve Second Layer
+        CP, SP = self.SolveSecondLayer(CP, SP)
+        self.PlotRubik(CP, SP)
+        # Solve Yellow Cross
+        CP, SP = self.SolveYellowCross(CP, SP)
+        self.PlotRubik(CP, SP)
+        # Order Yellow Cross
+        CP, SP = self.OrderYellowCross(CP, SP)
+        self.PlotRubik(CP, SP)
+        # Solve Yellow Corners
+        CP, SP = self.SolveYellowCorners(CP, SP)
+        self.PlotRubik(CP, SP)
+        # Orientate Yellow Corners
+        CP, SP = self.OrientateYellowCorners(CP, SP)
+        self.PlotRubik(CP, SP)
 
         self.write_instructions("null", "null", True)
 
@@ -2301,23 +2301,23 @@ class RubikCube(Teensy, Camera):
 
         motor = 0
         if not closeFlag:
-            if Face == "Front": # 1/2
+            if Face == "Front": # 1/2 or Byte 49/50
                 motor = 1
                 pinControl = relativeDirection(Direction, 'CW')
                 
-            elif Face == "Back": # 3/4
+            elif Face == "Back": # 3/4 or Byte 51/52
                 motor = 3
                 pinControl = relativeDirection(Direction, 'CCW')
-            elif Face == "Right": # 5/6
+            elif Face == "Right": # 5/6 or Byte 53/54
                 motor = 5
                 pinControl = relativeDirection(Direction, 'CW')
-            elif Face == "Left": # 7/8
+            elif Face == "Left": # 7/8 or Byte 55/56
                 motor = 7
                 pinControl = relativeDirection(Direction, 'CCW')
-            elif Face == "Bottom": # 9/10
+            elif Face == "Bottom": # 9/10 or Byte 57/58
                 motor = 9
                 pinControl = relativeDirection(Direction, 'CCW')
-            elif Face == "Top": # 11/12
+            elif Face == "Top": # 11/12 or Byte 59/60
                 motor = 11
                 pinControl = relativeDirection(Direction, 'CW')
             
