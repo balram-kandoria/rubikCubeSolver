@@ -21,4 +21,6 @@ CP, SP = rub.BeginnerAlgorithm(CP,SP)
 rub.PlotRubik(CP, SP)
 print(len(rub.commands))
 
+
 rub.sendCommands()
+

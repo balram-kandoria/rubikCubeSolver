@@ -1,5 +1,6 @@
 import serial
 import time
+from tqdm import tqdm 
 
 class Teensy():
     def __init__(self):
@@ -20,14 +21,15 @@ class Teensy():
         print(self.commands)
         ser = serial.Serial(self.board, self.baud, timeout=1)
 
-        for i in range(len(self.commands)):
+        for i in tqdm(range(len(self.commands)),desc = "Solving Rubik Cube", leave=False):
             ser.reset_input_buffer()
             specificCommand = self.commands[i]
-            print(specificCommand)
             ser.write(bytes(str(specificCommand),'utf-8'))
             line = ser.readline().decode('utf-8').rstrip()
-            print("Teensy received command")
-            time.sleep(0.5)
+            time.sleep(0.25)
+            self.takeImage(i)
+        
+        self.createVideo()
 
     def teensyStatus():
         '''Gather state of teensy from GPIO pins (ready to run, running, idle, or error)'''

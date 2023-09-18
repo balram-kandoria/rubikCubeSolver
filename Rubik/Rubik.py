@@ -2261,24 +2261,24 @@ class RubikCube(Teensy, Camera):
         # Solve White Cross
         CP, SP = self.SolveWhiteCross(CP, SP)
         self.PlotRubik(CP, SP)
-        # Solve White Corners
-        CP, SP = self.SolveWhiteCorners(CP, SP)
-        self.PlotRubik(CP, SP)
-        # Solve Second Layer
-        CP, SP = self.SolveSecondLayer(CP, SP)
-        self.PlotRubik(CP, SP)
-        # Solve Yellow Cross
-        CP, SP = self.SolveYellowCross(CP, SP)
-        self.PlotRubik(CP, SP)
-        # Order Yellow Cross
-        CP, SP = self.OrderYellowCross(CP, SP)
-        self.PlotRubik(CP, SP)
-        # Solve Yellow Corners
-        CP, SP = self.SolveYellowCorners(CP, SP)
-        self.PlotRubik(CP, SP)
-        # Orientate Yellow Corners
-        CP, SP = self.OrientateYellowCorners(CP, SP)
-        self.PlotRubik(CP, SP)
+        # # Solve White Corners
+        # CP, SP = self.SolveWhiteCorners(CP, SP)
+        # self.PlotRubik(CP, SP)
+        # # Solve Second Layer
+        # CP, SP = self.SolveSecondLayer(CP, SP)
+        # self.PlotRubik(CP, SP)
+        # # Solve Yellow Cross
+        # CP, SP = self.SolveYellowCross(CP, SP)
+        # self.PlotRubik(CP, SP)
+        # # Order Yellow Cross
+        # CP, SP = self.OrderYellowCross(CP, SP)
+        # self.PlotRubik(CP, SP)
+        # # Solve Yellow Corners
+        # CP, SP = self.SolveYellowCorners(CP, SP)
+        # self.PlotRubik(CP, SP)
+        # # Orientate Yellow Corners
+        # CP, SP = self.OrientateYellowCorners(CP, SP)
+        # self.PlotRubik(CP, SP)
 
         self.write_instructions("null", "null", True)
 
