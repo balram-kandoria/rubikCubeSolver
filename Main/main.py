@@ -3,6 +3,7 @@ sys.path.append("../Rubik")
 from Rubik import RubikCube
 
 
+
 # Initialize Cube
 rub = RubikCube("../Solution/Solution.txt")
 OrderedCube = rub.Rubik
