@@ -26,8 +26,7 @@ class Teensy():
             specificCommand = self.commands[i]
             ser.write(bytes(str(specificCommand),'utf-8'))
             line = ser.readline().decode('utf-8').rstrip()
-            time.sleep(0.25)
-            self.takeImage(i)
+            self.takeImage(i, 0)
         
         self.createVideo()
 

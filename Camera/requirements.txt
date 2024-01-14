@@ -1,0 +1,4 @@
+natsort==8.4.0
+opencv_python==4.8.0.76
+Pillow==8.1.2
+Pillow==10.0.1

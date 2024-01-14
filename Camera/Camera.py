@@ -7,20 +7,21 @@ class Camera():
     def __init__(self):
 
         self.ImageDirectory = "/home/pi1/Desktop/Rubik/rubikCubeSolver/Camera/Images/"
-        self.Resolution = "1920x1080"
+        self.Resolution = "640x480"
         self.delay = "0.5"
-        self.skip = "30"
+        self.skip = "15"
         self.frameReference = "5"
         self.OutputDirectory = "/home/pi1/Desktop/Rubik/rubikCubeSolver/Solution"
         print("=====================Camera Init===================================")
-        print("Camera Initiated: TBI")
-        print("Future Installation Site")
+        self.CameraProperties = ["/dev/video0", "/dev/video2"]
+        print("Camera's Initiated: Pi Cam 1, Pi Cam 2")
+        print(f"Camera reference locations: {self.CameraProperties}")
         print("===================================================================")
     
-    def takeImage(self, ImageNumber):
+    def takeImage(self, ImageNumber, piCam):
 
         imageFrameName = self.ImageDirectory + "output" + str(ImageNumber) + ".png"
-        os.system(f"fswebcam -r {self.Resolution} -pMJPEG -S {self.skip} -D {self.delay} -F {self.frameReference} -q --save {imageFrameName}")
+        os.system(f"fswebcam -r {self.Resolution} -pYUYV -S {self.skip} -D {self.delay} -F {self.frameReference} -q --save {imageFrameName} -d {self.CameraProperties[piCam]}")
 
     def createVideo(self):
         # Checking the current directory path
@@ -68,7 +69,7 @@ class Camera():
                 print(width, height)
 
                 # resizing
-                imResize = im.resize((mean_width, mean_height), Image.ANTIALIAS)
+                # imResize = im.resize((mean_width, mean_height), Image.ANTIALIAS)
                 # imResize.save(file, 'JPEG', quality=95)  # setting quality
                 # printing each resized image name
                 print(im.filename.split('\\')[-1], " is resized")
@@ -107,5 +108,11 @@ class Camera():
 
         # Calling the generate_video function
         generate_video(self)
-            
+    # DEBUG
+    # stat: No such file or directory
+    # vcgencmd get_camera
+    # v4l2-ctl --list-formats-ext
+    # sudo apt-get --purge remove motion
+    # sudo apt-get install fswebcam
+
 
